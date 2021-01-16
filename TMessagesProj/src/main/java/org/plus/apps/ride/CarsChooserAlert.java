@@ -499,7 +499,7 @@ public class CarsChooserAlert extends BottomSheet{
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             UserCell shareDialogCell = (UserCell)holder.itemView;
-            shareDialogCell.setCar(cars.get(position));
+         //   shareDialogCell.setCar(cars.get(position));
 
         }
 

@@ -2,6 +2,11 @@ package org.telegram.messenger;
 
 import android.content.SharedPreferences;
 
+import org.plus.apps.business.data.ShopDataController;
+import org.plus.apps.business.data.ShopDataStorage;
+import org.plus.database.DataStorage;
+import org.plus.net.RequestManager;
+import org.plus.wallet.WalletController;
 import org.telegram.tgnet.ConnectionsManager;
 
 public class AccountInstance {
@@ -92,4 +97,28 @@ public class AccountInstance {
     public int getCurrentAccount() {
         return currentAccount;
     }
+
+    //plus
+    public ShopDataController getShopDataController(){
+        return ShopDataController.getInstance(currentAccount);
+    }
+
+    public RequestManager getRequestManager(){
+        return RequestManager.getInstance(currentAccount);
+    }
+
+    public ShopDataStorage getShopDataStorage(){
+        return ShopDataStorage.getInstance(currentAccount);
+    }
+
+    public WalletController getWalletController(){
+        return WalletController.getInstance(currentAccount);
+    }
+
+
+    public DataStorage getDataStorage(){
+        return DataStorage.getInstance(currentAccount);
+    }
+    //
+
 }

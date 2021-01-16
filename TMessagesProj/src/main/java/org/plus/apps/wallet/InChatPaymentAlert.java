@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.plus.apps.business.data.ShopDataController;
 import org.plus.apps.business.data.ShopDataSerializer;
 import org.plus.apps.business.ui.cells.BusinessCell;
+import org.plus.features.PlusTheme;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.NotificationCenter;
@@ -496,10 +497,11 @@ public class InChatPaymentAlert extends BottomSheet{
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             AttachButton attachButton = (AttachButton) holder.itemView;
             if (position == walletButton) {
-                attachButton.setTextAndIcon(1, LocaleController.getString("Wallet", R.string.Wallet), Theme.wallet_drawale, Theme.key_chat_attachGalleryBackground, Theme.key_chat_attachGalleryText);
+
+                attachButton.setTextAndIcon(1, LocaleController.getString("Wallet", R.string.Wallet), PlusTheme.getDrawable(R.drawable.menu_wallet), Theme.key_chat_attachGalleryBackground, Theme.key_chat_attachGalleryText);
                 attachButton.setTag(1);
             } else if (position == airTimeButton) {
-                attachButton.setTextAndIcon(2, LocaleController.getString("AirTime", R.string.AirTime), Theme.getDrawable(R.drawable.air_time), Theme.key_chat_attachPollBackground, Theme.key_chat_attachPollText);
+                attachButton.setTextAndIcon(2, LocaleController.getString("AirTime", R.string.AirTime), PlusTheme.getDrawable(R.drawable.air_time), Theme.key_chat_attachPollBackground, Theme.key_chat_attachPollText);
                 attachButton.setTag(2);
             }
         }

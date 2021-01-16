@@ -175,11 +175,11 @@ public class  RequestManager extends BaseController {
         }
         return walletRequest;
     }
-
-    public void checkForRemoveConfig(){
-        FirebaseTask task = new FirebaseTask(currentAccount);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
-    }
+//
+//    public void checkForRemoveConfig(){
+//        FirebaseTask task = new FirebaseTask(currentAccount);
+//        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
+//    }
 
     public static SharedPreferences getPreferences(int account) {
         return getInstance(account).sharedPreferences;
@@ -472,66 +472,66 @@ public class  RequestManager extends BaseController {
         }
     }
 
-    private static class FirebaseTask extends AsyncTask<Void, Void, RemoteObject> {
-
-        private int currentAccount;
-        private FirebaseRemoteConfig firebaseRemoteConfig;
-
-        public FirebaseTask(int instance) {
-            super();
-            currentAccount = instance;
-        }
-
-
-        protected RemoteObject doInBackground(Void... voids) {
-            try {
-                firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-                FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder().setDeveloperModeEnabled(BuildConfig.DEBUG).build();
-                firebaseRemoteConfig.setConfigSettings(configSettings);
-                RemoteObject current_remoteObject = new RemoteObject();
-
-                current_remoteObject.authBot = firebaseRemoteConfig.getString("auth_bot");
-                current_remoteObject.authQuery = firebaseRemoteConfig.getString("auth_query");
-                current_remoteObject.conf_update = firebaseRemoteConfig.getLong("conf_update");
-                 if (BuildVars.LOGS_ENABLED) {
-                      Log.d("RemoteObject","current firebase value = " + current_remoteObject.toString());
-                }
-
-                firebaseRemoteConfig.fetch(0).addOnCompleteListener(finishedTask -> {
-                    final boolean success = finishedTask.isSuccessful();
-                    Utilities.stageQueue.postRunnable(() -> {
-                        RemoteObject config = null;
-                        if (success) {
-                            firebaseRemoteConfig.activateFetched();
-                            config =new RemoteObject();
-                            config.authBot = firebaseRemoteConfig.getString("auth_bot");
-                            config.authQuery = firebaseRemoteConfig.getString("auth_query");
-                            config.conf_update = firebaseRemoteConfig.getLong("conf_update");
-                            config.last_update_time = firebaseRemoteConfig.getInfo().getFetchTimeMillis();
-                            if (config != null) {
-                                RequestManager.getInstance(currentAccount).applyRemoteConfig(config);
-                            }
-                        }
-                    });
-                });
-            } catch (Throwable e) {
-                Utilities.stageQueue.postRunnable(() -> {
-                    if (BuildVars.LOGS_ENABLED) {
-                        FileLog.d("failed to get firebase result");
-                        FileLog.d("start dns txt task");
-                    }
-
-                });
-                FileLog.e(e);
-            }
-            return null;
-        }
-
-
-        @Override
-        protected void onPostExecute(RemoteObject result) {
-
-        }
-    }
+//    private static class FirebaseTask extends AsyncTask<Void, Void, RemoteObject> {
+//
+//        private int currentAccount;
+//        private FirebaseRemoteConfig firebaseRemoteConfig;
+//
+//        public FirebaseTask(int instance) {
+//            super();
+//            currentAccount = instance;
+//        }
+//
+//
+//        protected RemoteObject doInBackground(Void... voids) {
+//            try {
+//                firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+//                FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder().setDeveloperModeEnabled(BuildConfig.DEBUG).build();
+//                firebaseRemoteConfig.setConfigSettings(configSettings);
+//                RemoteObject current_remoteObject = new RemoteObject();
+//
+//                current_remoteObject.authBot = firebaseRemoteConfig.getString("auth_bot");
+//                current_remoteObject.authQuery = firebaseRemoteConfig.getString("auth_query");
+//                current_remoteObject.conf_update = firebaseRemoteConfig.getLong("conf_update");
+//                 if (BuildVars.LOGS_ENABLED) {
+//                      Log.d("RemoteObject","current firebase value = " + current_remoteObject.toString());
+//                }
+//
+//                firebaseRemoteConfig.fetch(0).addOnCompleteListener(finishedTask -> {
+//                    final boolean success = finishedTask.isSuccessful();
+//                    Utilities.stageQueue.postRunnable(() -> {
+//                        RemoteObject config = null;
+//                        if (success) {
+//                            firebaseRemoteConfig.activateFetched();
+//                            config =new RemoteObject();
+//                            config.authBot = firebaseRemoteConfig.getString("auth_bot");
+//                            config.authQuery = firebaseRemoteConfig.getString("auth_query");
+//                            config.conf_update = firebaseRemoteConfig.getLong("conf_update");
+//                            config.last_update_time = firebaseRemoteConfig.getInfo().getFetchTimeMillis();
+//                            if (config != null) {
+//                                RequestManager.getInstance(currentAccount).applyRemoteConfig(config);
+//                            }
+//                        }
+//                    });
+//                });
+//            } catch (Throwable e) {
+//                Utilities.stageQueue.postRunnable(() -> {
+//                    if (BuildVars.LOGS_ENABLED) {
+//                        FileLog.d("failed to get firebase result");
+//                        FileLog.d("start dns txt task");
+//                    }
+//
+//                });
+//                FileLog.e(e);
+//            }
+//            return null;
+//        }
+//
+//
+//        @Override
+//        protected void onPostExecute(RemoteObject result) {
+//
+//        }
+//    }
 
 }

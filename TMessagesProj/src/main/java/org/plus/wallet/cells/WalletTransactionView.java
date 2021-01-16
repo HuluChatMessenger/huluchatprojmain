@@ -20,6 +20,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.plus.features.PlusTheme;
 import org.plus.wallet.WalletModel;
 import org.plus.wallet.WalletUtils;
 import org.telegram.messenger.AndroidUtilities;
@@ -158,7 +159,7 @@ public class WalletTransactionView extends FrameLayout {
 
             statusTextView.setText("Pending");
             try{
-                Drawable statusDrawable = Theme.getDrawable(R.drawable.msg_timer);
+                Drawable statusDrawable = PlusTheme.getDrawable(R.drawable.msg_timer);
                 statusDrawable.setBounds(0,0,AndroidUtilities.dp(14),AndroidUtilities.dp(14));
                 statusDrawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText3), PorterDuff.Mode.MULTIPLY));
                 statusTextView.setCompoundDrawables(statusDrawable,null,null,null);

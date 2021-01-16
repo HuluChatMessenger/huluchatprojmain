@@ -25,6 +25,9 @@ import android.view.ViewParent;
 import android.view.accessibility.AccessibilityManager;
 import android.widget.FrameLayout;
 
+import org.plus.apps.business.data.ShopDataController;
+import org.plus.database.DataStorage;
+import org.plus.wallet.WalletController;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.ContactsController;
@@ -597,4 +600,18 @@ public class BaseFragment {
     public void saveKeyboardPositionBeforeTransition() {
 
     }
+
+
+    public DataStorage getDataStorage(){
+        return getAccountInstance().getDataStorage();
+    }
+
+    public ShopDataController getShopDataController(){
+        return getAccountInstance().getShopDataController();
+    }
+
+    public WalletController getWalletController(){
+        return getAccountInstance().getWalletController();
+    }
+
 }

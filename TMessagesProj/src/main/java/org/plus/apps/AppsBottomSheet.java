@@ -34,6 +34,7 @@ import org.plus.apps.business.data.ShopDataController;
 import org.plus.apps.business.data.ShopDataSerializer;
 import org.plus.apps.business.ui.cells.BusinessCell;
 import org.plus.experment.PlusBuildVars;
+import org.plus.features.PlusTheme;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.NotificationCenter;
@@ -503,19 +504,19 @@ public class AppsBottomSheet extends BottomSheet{
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             AttachButton attachButton = (AttachButton) holder.itemView;
             if (position == walletButton) {
-                attachButton.setTextAndIcon(1, LocaleController.getString("Wallet", R.string.Wallet), Theme.wallet_drawale, Theme.key_chat_attachGalleryBackground, Theme.key_chat_attachGalleryText);
+                attachButton.setTextAndIcon(1, LocaleController.getString("Wallet", R.string.Wallet),PlusTheme.getDrawable(R.drawable.menu_wallet), Theme.key_chat_attachGalleryBackground, Theme.key_chat_attachGalleryText);
                 attachButton.setTag(1);
             } else if (position == shopButton) {
-                attachButton.setTextAndIcon(2, LocaleController.getString("Shop", R.string.Shop), Theme.getDrawable(R.drawable.ic_store), Theme.key_chat_attachAudioBackground, Theme.key_chat_attachAudioText);
+                attachButton.setTextAndIcon(2, LocaleController.getString("Shop", R.string.Shop), PlusTheme.getDrawable(R.drawable.ic_store), Theme.key_chat_attachAudioBackground, Theme.key_chat_attachAudioText);
                 attachButton.setTag(2);
             }else if(position == scanButton){
-                attachButton.setTextAndIcon(3, LocaleController.getString("Scan", R.string.Scan), Theme.getDrawable(R.drawable.wallet_qr), Theme.key_chat_attachLocationBackground, Theme.key_chat_attachLocationText);
+                attachButton.setTextAndIcon(3, LocaleController.getString("Scan", R.string.Scan), PlusTheme.getDrawable(R.drawable.wallet_qr), Theme.key_chat_attachLocationBackground, Theme.key_chat_attachLocationText);
                 attachButton.setTag(3);
             }else if(position == rideButton){
-                attachButton.setTextAndIcon(4, LocaleController.getString("Ride", R.string.Ride), Theme.getDrawable(R.drawable.ic_ride), Theme.key_chat_attachLocationBackground, Theme.key_chat_attachLocationText);
+                attachButton.setTextAndIcon(4, LocaleController.getString("Ride", R.string.Ride), PlusTheme.getDrawable(R.drawable.ic_ride), Theme.key_chat_attachLocationBackground, Theme.key_chat_attachLocationText);
                 attachButton.setTag(4);
             }else if(position == settingRow){
-                attachButton.setTextAndIcon(5, LocaleController.getString("Settings", R.string.Settings), Theme.getDrawable(R.drawable.menu_settings), Theme.key_chat_attachLocationBackground, Theme.key_chat_attachLocationText);
+                attachButton.setTextAndIcon(5, LocaleController.getString("Settings", R.string.Settings), PlusTheme.getDrawable(R.drawable.menu_settings), Theme.key_chat_attachLocationBackground, Theme.key_chat_attachLocationText);
                 attachButton.setTag(5);
             }
         }

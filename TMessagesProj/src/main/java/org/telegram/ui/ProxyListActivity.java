@@ -25,6 +25,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.plus.apps.business.data.ShopDataController;
+import org.plus.net.APIError;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.DownloadController;
 import org.telegram.messenger.LocaleController;
@@ -45,6 +47,7 @@ import org.telegram.ui.Cells.TextInfoPrivacyCell;
 import org.telegram.ui.Cells.TextSettingsCell;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RecyclerListView;
+import org.telegram.ui.Components.SpannableStringLight;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -53,6 +56,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ProxyListActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
@@ -65,6 +69,7 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
 
     private boolean useProxySettings;
     private boolean useProxyForCalls;
+
 
     private int rowCount;
     private int useProxyRow;
@@ -127,8 +132,16 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
             super.onMeasure(MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(64) + 1, MeasureSpec.EXACTLY));
         }
 
+
         public void setProxy(SharedConfig.ProxyInfo proxyInfo) {
-            textView.setText(proxyInfo.address + ":" + proxyInfo.port);
+            if(proxyInfo.custom){
+                int number = serverCount.getAndIncrement();
+                textView.setText("HuluChat private  server " + number);
+                checkImageView.setVisibility(GONE);
+            }else{
+                checkImageView.setVisibility(VISIBLE);
+                textView.setText(proxyInfo.address + ":" + proxyInfo.port);
+            }
             currentInfo = proxyInfo;
         }
 
@@ -207,6 +220,9 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
         }
     }
 
+    private AtomicInteger serverCount = new AtomicInteger(1);
+
+
     @Override
     public boolean onFragmentCreate() {
         super.onFragmentCreate();
@@ -216,6 +232,9 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
 
         NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.proxySettingsChanged);
         NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.proxyCheckDone);
+        //plus
+        NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.proxyLoadedFromServer);
+        //
         NotificationCenter.getInstance(currentAccount).addObserver(this, NotificationCenter.didUpdateConnectionState);
 
         final SharedPreferences preferences = MessagesController.getGlobalMainSettings();
@@ -223,6 +242,10 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
         useProxyForCalls = preferences.getBoolean("proxy_enabled_calls", false);
 
         updateRows(true);
+
+        //plus
+        getShopDataController().loadProxyFromFirebase(true,false);
+        //
 
         return true;
     }
@@ -233,6 +256,10 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
         NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.proxySettingsChanged);
         NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.proxyCheckDone);
         NotificationCenter.getInstance(currentAccount).removeObserver(this, NotificationCenter.didUpdateConnectionState);
+        //plus
+        NotificationCenter.getGlobalInstance().removeObserver(this, NotificationCenter.proxyLoadedFromServer);
+        //
+
     }
 
     @Override
@@ -269,7 +296,6 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
                 if (SharedConfig.currentProxy == null) {
                     if (!SharedConfig.proxyList.isEmpty()) {
                         SharedConfig.currentProxy = SharedConfig.proxyList.get(0);
-
                         if (!useProxySettings) {
                             SharedPreferences preferences = MessagesController.getGlobalMainSettings();
                             SharedPreferences.Editor editor = MessagesController.getGlobalMainSettings().edit();
@@ -365,7 +391,7 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
                 AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity());
                 builder.setMessage(LocaleController.getString("DeleteProxy", R.string.DeleteProxy));
                 builder.setNegativeButton(LocaleController.getString("Cancel", R.string.Cancel), null);
-                builder.setTitle(LocaleController.getString("AppName", R.string.AppName));
+                builder.setTitle(LocaleController.getString("AppNameHulu", R.string.AppNameHulu));
                 builder.setPositiveButton(LocaleController.getString("OK", R.string.OK), (dialog, which) -> {
                     SharedConfig.deleteProxy(info);
                     if (SharedConfig.currentProxy == null) {
@@ -429,7 +455,10 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
         if (notify && listAdapter != null) {
             listAdapter.notifyDataSetChanged();
         }
+
     }
+
+
 
     private void checkProxyList() {
         for (int a = 0, count = SharedConfig.proxyList.size(); a < count; a++) {
@@ -497,6 +526,8 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
                     }
                 }
             }
+        }else if(id == NotificationCenter.proxyLoadedFromServer){
+            updateRows(true);
         }
     }
 
@@ -633,6 +664,7 @@ public class ProxyListActivity extends BaseFragment implements NotificationCente
             view.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT));
             return new RecyclerListView.Holder(view);
         }
+
 
         @Override
         public int getItemViewType(int position) {

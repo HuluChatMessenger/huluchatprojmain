@@ -128,7 +128,7 @@ public class SpanListLayout extends FrameLayout {
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             GroupCreateSpan groupCreateUserCell  =  (GroupCreateSpan)holder.itemView;
-            groupCreateUserCell.setData(businesses.get(position));
+          //  groupCreateUserCell.setData(businesses.get(position));
         }
 
         @Override

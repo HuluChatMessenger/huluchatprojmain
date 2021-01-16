@@ -263,7 +263,6 @@ public class ShopAdminFragment extends BaseFragment {
                         args.putBoolean("addtoShopAdmin", true);
                         args.putInt("chatId",chat_id);
                         GroupCreateActivity fragment = new GroupCreateActivity(args);
-                        fragment.setIgnoreUserList(admins_id);
                         fragment.setDelegate(new GroupCreateActivity.ContactsAddActivityDelegate() {
                             @Override
                             public void didSelectUsers(ArrayList<TLRPC.User> users, int fwdCount) {
@@ -312,7 +311,7 @@ public class ShopAdminFragment extends BaseFragment {
                     }
                 });
                 if (user != null) {
-                    actionCell.setUser(user, true,show);
+                   // actionCell.setUser(user, true,show);
                 }
 
             }

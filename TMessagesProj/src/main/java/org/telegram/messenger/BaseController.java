@@ -1,5 +1,10 @@
 package org.telegram.messenger;
 
+import org.plus.apps.business.data.ShopDataController;
+import org.plus.apps.business.data.ShopDataStorage;
+import org.plus.database.DataStorage;
+import org.plus.net.RequestManager;
+import org.plus.wallet.WalletController;
 import org.telegram.tgnet.ConnectionsManager;
 
 public class BaseController {
@@ -75,4 +80,28 @@ public class BaseController {
     protected final FileRefController getFileRefController() {
         return parentAccountInstance.getFileRefController();
     }
+
+
+    //plus
+    protected final ShopDataController getShopDataController(){
+        return parentAccountInstance.getShopDataController();
+    }
+
+    protected final RequestManager getRequestManager(){
+        return parentAccountInstance.getRequestManager();
+    }
+
+    protected final DataStorage getDataStorage(){
+        return parentAccountInstance.getDataStorage();
+    }
+
+
+    protected final ShopDataStorage getShopDataStorage(){
+        return parentAccountInstance.getShopDataStorage();
+    }
+
+    protected final WalletController getWalletController(){
+        return parentAccountInstance.getWalletController();
+    }
+    //
 }

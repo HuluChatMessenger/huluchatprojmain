@@ -21,6 +21,51 @@ public class NotificationCenter {
 
     private static int totalEvents = 1;
 
+    //plus
+
+    public static final int proxyLoadedFromServer = totalEvents++;
+    public static final int countryDectected = totalEvents++;
+    public static final int didNewProductListed = totalEvents++;
+    public static final int didWalletLoaded = totalEvents++;
+    public static final int didTransactionLoaded = totalEvents++;
+    public static final int didPaymentProvidersLoaded = totalEvents++;
+    public static final int didProductLocationLoaded= totalEvents++;
+    public static final int didFavLoadedFromLocal= totalEvents++;
+    public static final int didProductSearchLoaded = totalEvents++;
+    public static final int didRemoteDataLoaded = totalEvents++;
+    public static final int didFavoriteProductLoaded = totalEvents++;
+    public static final int productFilterLoaded = totalEvents++;
+    public static final int didLoadedTypeObject = totalEvents++;
+    public static final int productFullLoaded = totalEvents++;
+    public static final int didHiddenChatLoaded = totalEvents++;
+    public static final int PlusFileDidUpload = totalEvents++;
+    public static final int PlusFileDidFailUpload = totalEvents++;
+    public static final int didImageUploaded = totalEvents++;
+    public static final int didCheckShop = totalEvents++;
+    public static final int didShopCreated = totalEvents++;
+    public static final int didOfferCreated = totalEvents++;
+    public static final int reviewPosted = totalEvents++;
+    public static final int didShopLoaded = totalEvents++;
+    public static final int didBusinessLoaded = totalEvents++;
+    public static final int didStoreFieldLoaded = totalEvents++;
+    public static final int didSortLoaded = totalEvents++;
+    public static final int didShopReviewLoaded = totalEvents++;
+    public static final int getDidBusinessLoadedById = totalEvents++;
+    public static final int didProductLoaded = totalEvents++;
+    public static final int didFeaturedShopLoaded = totalEvents++;
+    public static final int didFeaturedProductLoaded = totalEvents++;
+    public static final int didProductListed = totalEvents++;
+    public static final int filteredProductListed = totalEvents++;
+    public static final int didProductUpdated = totalEvents++;
+    public static final int didReviewLoaded = totalEvents++;
+    public static final int didReviewSelfLoaded = totalEvents++;
+    public static final int didOffersLoaded = totalEvents++;
+    public static final int didConfigrationLoaded = totalEvents++;
+    public static final int didShopUpdated= totalEvents++;
+    public static final int configLoaded = totalEvents++;
+    public static final int collectionLoaded = totalEvents++;
+    //
+
     public static final int didReceiveNewMessages = totalEvents++;
     public static final int updateInterfaces = totalEvents++;
     public static final int dialogsNeedReload = totalEvents++;
@@ -159,7 +204,6 @@ public class NotificationCenter {
 
     public static final int appDidLogout = totalEvents++;
 
-    public static final int configLoaded = totalEvents++;
 
     public static final int needDeleteDialog = totalEvents++;
 

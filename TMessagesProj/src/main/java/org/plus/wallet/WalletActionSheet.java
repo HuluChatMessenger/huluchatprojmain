@@ -41,6 +41,7 @@ import android.widget.Toast;
 
 import androidx.core.widget.NestedScrollView;
 
+import org.plus.features.PlusTheme;
 import org.plus.net.APIError;
 import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.messenger.AndroidUtilities;
@@ -863,7 +864,7 @@ public class WalletActionSheet extends BottomSheet {
             codeField[a].setCursorSize(AndroidUtilities.dp(20));
             codeField[a].setCursorWidth(1.5f);
 
-            Drawable pressedDrawable = Theme.getDrawable(R.drawable.search_dark_activated).mutate();
+            Drawable pressedDrawable = PlusTheme.getDrawable(R.drawable.search_dark_activated).mutate();
             pressedDrawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_windowBackgroundWhiteInputFieldActivated), PorterDuff.Mode.MULTIPLY));
 
             codeField[a].setBackgroundDrawable(pressedDrawable);
