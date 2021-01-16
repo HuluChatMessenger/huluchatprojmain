@@ -30,6 +30,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.Serializable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -95,7 +96,7 @@ public class LocaleController {
         }
     }
 
-    public static class LocaleInfo {
+    public static class LocaleInfo implements Serializable {
 
         public String name;
         public String nameEnglish;

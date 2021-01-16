@@ -28,6 +28,7 @@ import org.plus.apps.ride.data.RideObjects;
 import org.plus.experment.DataLoader;
 import org.plus.experment.PlusBuildVars;
 import org.plus.features.PlusConfig;
+import org.plus.features.PlusUtils;
 import org.plus.net.APIError;
 import org.plus.net.CountingRequestBody;
 import org.plus.net.ErrorUtils;
@@ -2201,7 +2202,7 @@ public class ShopDataController extends BaseController implements NotificationCe
                     }
                     ArrayList<SharedConfig.ProxyInfo> proxyInfoArrayList = new ArrayList<>();
                     for (int i = 0; i < proxies_list.size(); i++) {
-                        SharedConfig.ProxyInfo proxy = AndroidUtilities.parseProxy(proxies_list.get(i));
+                        SharedConfig.ProxyInfo proxy = PlusUtils.parseProxy(proxies_list.get(i));
                         if(proxy == null){
                             continue;
                         }
@@ -2261,7 +2262,7 @@ public class ShopDataController extends BaseController implements NotificationCe
                     }
                     ArrayList<SharedConfig.ProxyInfo> proxyInfoArrayList = new ArrayList<>();
                     for (int i = 0; i < proxies_list.size(); i++) {
-                        SharedConfig.ProxyInfo proxy = AndroidUtilities.parseProxy(proxies_list.get(i));
+                        SharedConfig.ProxyInfo proxy = PlusUtils.parseProxy(proxies_list.get(i));
                         if(proxy == null){
                             continue;
                         }
@@ -2291,77 +2292,77 @@ public class ShopDataController extends BaseController implements NotificationCe
         });
     }
 
-    public void checkForUpdate(){
-        FirebaseTask task = new FirebaseTask(currentAccount);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
-        currentTask = task;
-    }
+//    public void checkForUpdate(){
+//        FirebaseTask task = new FirebaseTask(currentAccount);
+//        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, null, null, null);
+//        currentTask = task;
+//    }
 
     private static AsyncTask currentTask;
-    private static class FirebaseTask extends AsyncTask<Void, Void, Void>{
-
-        private int currentAccount;
-        private FirebaseRemoteConfig firebaseRemoteConfig;
-
-        public FirebaseTask(int instance) {
-            super();
-            currentAccount = instance;
-        }
-
-        protected Void doInBackground(Void... voids) {
-            try {
-                firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-                FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder().setDeveloperModeEnabled(BuildConfig.DEBUG).build();
-                firebaseRemoteConfig.setConfigSettings(configSettings);
-                String currentValue = firebaseRemoteConfig.getString("ipconfigv3");
-                String currentfilm = "";
-                if (BuildVars.LOGS_ENABLED) {
-                    FileLog.d("current firebase value = " + currentValue);
-                }
-                firebaseRemoteConfig.fetch(0).addOnCompleteListener(finishedTask -> {
-                    final boolean success = finishedTask.isSuccessful();
-                    Utilities.stageQueue.postRunnable(() -> {
-                        currentTask = null;
-                        String config = null;
-                        if (success) {
-                            firebaseRemoteConfig.activateFetched();
-                            config = firebaseRemoteConfig.getString("ipconfigv3");
-                        }
-                        if (!TextUtils.isEmpty(config)) {
-                            byte[] bytes = Base64.decode(config, Base64.DEFAULT);
-                            try {
-                                NativeByteBuffer buffer = new NativeByteBuffer(bytes.length);
-                                buffer.writeBytes(bytes);
-                                int date = (int) (firebaseRemoteConfig.getInfo().getFetchTimeMillis() / 1000);
-                            } catch (Exception e) {
-                                FileLog.e(e);
-                            }
-                        } else {
-                            if (PlusBuildVars.LOGS_ENABLED) {
-                                FileLog.d("failed to get firebase result");
-                                FileLog.d("start dns txt task");
-                            }
-                        }
-                    });
-                });
-            } catch (Throwable e) {
-                Utilities.stageQueue.postRunnable(() -> {
-                    if (PlusBuildVars.LOGS_ENABLED) {
-                        FileLog.debug("failed to get firebase result");
-                        FileLog.debug("start dns txt task");
-                    }
-
-                });
-                FileLog.e(e);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-
-        }
-    }
+//    private static class FirebaseTask extends AsyncTask<Void, Void, Void>{
+//
+//        private int currentAccount;
+//        private FirebaseRemoteConfig firebaseRemoteConfig;
+//
+//        public FirebaseTask(int instance) {
+//            super();
+//            currentAccount = instance;
+//        }
+//
+//        protected Void doInBackground(Void... voids) {
+//            try {
+//                firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+//                FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder().setDeveloperModeEnabled(BuildConfig.DEBUG).build();
+//                firebaseRemoteConfig.setConfigSettings(configSettings);
+//                String currentValue = firebaseRemoteConfig.getString("ipconfigv3");
+//                String currentfilm = "";
+//                if (BuildVars.LOGS_ENABLED) {
+//                    FileLog.d("current firebase value = " + currentValue);
+//                }
+//                firebaseRemoteConfig.fetch(0).addOnCompleteListener(finishedTask -> {
+//                    final boolean success = finishedTask.isSuccessful();
+//                    Utilities.stageQueue.postRunnable(() -> {
+//                        currentTask = null;
+//                        String config = null;
+//                        if (success) {
+//                            firebaseRemoteConfig.activateFetched();
+//                            config = firebaseRemoteConfig.getString("ipconfigv3");
+//                        }
+//                        if (!TextUtils.isEmpty(config)) {
+//                            byte[] bytes = Base64.decode(config, Base64.DEFAULT);
+//                            try {
+//                                NativeByteBuffer buffer = new NativeByteBuffer(bytes.length);
+//                                buffer.writeBytes(bytes);
+//                                int date = (int) (firebaseRemoteConfig.getInfo().getFetchTimeMillis() / 1000);
+//                            } catch (Exception e) {
+//                                FileLog.e(e);
+//                            }
+//                        } else {
+//                            if (PlusBuildVars.LOGS_ENABLED) {
+//                                FileLog.d("failed to get firebase result");
+//                                FileLog.d("start dns txt task");
+//                            }
+//                        }
+//                    });
+//                });
+//            } catch (Throwable e) {
+//                Utilities.stageQueue.postRunnable(() -> {
+//                    if (PlusBuildVars.LOGS_ENABLED) {
+//                        FileLog.debug("failed to get firebase result");
+//                        FileLog.debug("start dns txt task");
+//                    }
+//
+//                });
+//                FileLog.e(e);
+//            }
+//            return null;
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Void result) {
+//
+//        }
+//    }
 
 
 

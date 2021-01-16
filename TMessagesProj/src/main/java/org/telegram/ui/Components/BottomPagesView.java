@@ -33,6 +33,15 @@ public class BottomPagesView extends View {
         pagesCount = count;
     }
 
+
+
+
+
+    public void setPagesCount(int count){
+        pagesCount = count;
+        invalidate();
+    }
+
     public void setPageOffset(int position, float offset) {
         progress = offset;
         scrollPosition = position;

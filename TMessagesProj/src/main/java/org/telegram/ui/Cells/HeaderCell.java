@@ -39,6 +39,11 @@ public class HeaderCell extends FrameLayout {
         this(context, Theme.key_windowBackgroundWhiteBlueHeader, 21, 15, false);
     }
 
+    public HeaderCell(Context context, String key,int padding) {
+        this(context, key, padding, 15, false);
+    }
+
+
     public HeaderCell(Context context, int padding) {
         this(context, Theme.key_windowBackgroundWhiteBlueHeader, padding, 15, false);
     }

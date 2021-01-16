@@ -3,5 +3,6 @@
 build/
 TMessagesProj/.cxx
 obj/
+TMessagesProj/.cxx
 *.iml
 local.properties

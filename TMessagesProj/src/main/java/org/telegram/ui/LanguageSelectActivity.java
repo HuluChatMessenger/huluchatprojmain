@@ -44,6 +44,7 @@ import java.util.TimerTask;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 public class LanguageSelectActivity extends BaseFragment implements NotificationCenter.NotificationCenterDelegate {
 
     private ListAdapter listAdapter;
@@ -65,6 +66,16 @@ public class LanguageSelectActivity extends BaseFragment implements Notification
         LocaleController.getInstance().loadRemoteLanguages(currentAccount);
         NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.suggestedLangpack);
         return super.onFragmentCreate();
+    }
+
+    public interface Delegate{
+        void onLangSelected(LocaleController.LocaleInfo localeInfo);
+    }
+
+    private Delegate delegate;
+
+    public void setDelegate(Delegate delegate) {
+        this.delegate = delegate;
     }
 
     @Override
@@ -149,6 +160,11 @@ public class LanguageSelectActivity extends BaseFragment implements Notification
             }
             LanguageCell cell = (LanguageCell) view;
             LocaleController.LocaleInfo localeInfo = cell.getCurrentLocale();
+            if(delegate != null){
+                delegate.onLangSelected(localeInfo);
+                finishFragment();
+                return;
+            }
             if (localeInfo != null) {
                 LocaleController.getInstance().applyLanguage(localeInfo, true, false, false, true, currentAccount);
                 parentLayout.rebuildAllFragmentViews(false, false);
@@ -414,9 +430,6 @@ public class LanguageSelectActivity extends BaseFragment implements Notification
 
         @Override
         public int getItemViewType(int i) {
-            if (search) {
-                return 0;
-            }
             if (!unofficialLanguages.isEmpty() && (i == unofficialLanguages.size() || i == unofficialLanguages.size() + sortedLanguages.size() + 1) || unofficialLanguages.isEmpty() && i == sortedLanguages.size()) {
                 return 1;
             }

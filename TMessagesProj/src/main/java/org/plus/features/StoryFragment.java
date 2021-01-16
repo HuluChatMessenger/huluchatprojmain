@@ -1132,7 +1132,7 @@ public class StoryFragment extends BaseFragment implements ImageUpdater.ImageUpd
             spannableStringBuilder.append(" Changed profile at "  + LocaleController.formatDate(time));
             textView.setText(spannableStringBuilder);
 
-             Drawable avatarDrawable = Theme.getDrawable(R.drawable.icplaceholder);
+             Drawable avatarDrawable = PlusTheme.getDrawable(R.drawable.icplaceholder);
             imageView.setImage(ImageLocation.getForUser(user, true), null, avatarDrawable, user);
              imageView.getImageReceiver().setDelegate(new ImageReceiver.ImageReceiverDelegate() {
                  @Override

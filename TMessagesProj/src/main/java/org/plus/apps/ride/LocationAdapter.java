@@ -52,7 +52,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class LocationAdapter extends BaseLocationAdapter implements LocationController.GoogleLocationFetchCallback {
+public class LocationAdapter extends BaseLocationAdapter implements LocationController.LocationFetchCallback {
 
     private int currentAccount = UserConfig.selectedAccount;
     private Context mContext;
@@ -232,7 +232,7 @@ public class LocationAdapter extends BaseLocationAdapter implements LocationCont
             }
             fetchingLocation = true;
             updateCell();
-            LocationController.fetchGoogleLocationAddress(location, this);
+            LocationController.fetchLocationAddress(location, this);
         } else {
             Location location;
             if (customLocation != null) {
@@ -245,7 +245,7 @@ public class LocationAdapter extends BaseLocationAdapter implements LocationCont
             }
             fetchingLocation = true;
             updateCell();
-            LocationController.fetchGoogleLocationAddress(location, this);
+            LocationController.fetchLocationAddress(location, this);
         }
     }
 

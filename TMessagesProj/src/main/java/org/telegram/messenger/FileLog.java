@@ -10,6 +10,7 @@ package org.telegram.messenger;
 
 import android.util.Log;
 
+import org.plus.experment.PlusBuildVars;
 import org.telegram.messenger.time.FastDateFormat;
 
 import java.io.File;
@@ -27,6 +28,45 @@ public class FileLog {
     private boolean initied;
 
     private final static String tag = "tmessages";
+
+    //plus
+    private final static String TAG = "huluchat";
+    public static void debug(final String message,String sub_tag) {
+        if (!PlusBuildVars.LOGS_ENABLED) {
+            return;
+        }
+        ensureInitied();
+        Log.d(TAG, message);
+        if (getInstance().streamWriter != null) {
+            getInstance().logQueue.postRunnable(() -> {
+                try {
+                    getInstance().streamWriter.write(getInstance().dateFormat.format(System.currentTimeMillis()) + " W/HULUCHAT: "+ sub_tag + ":" + message + "\n");
+                    getInstance().streamWriter.flush();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
+    public static void debug(final String message) {
+        if (!PlusBuildVars.LOGS_ENABLED) {
+            return;
+        }
+        ensureInitied();
+        Log.d(TAG, message);
+        if (getInstance().streamWriter != null) {
+            getInstance().logQueue.postRunnable(() -> {
+                try {
+                    getInstance().streamWriter.write(getInstance().dateFormat.format(System.currentTimeMillis()) + " W/HULUCHAT: " + message + "\n");
+                    getInstance().streamWriter.flush();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
+    //
+
 
     private static volatile FileLog Instance = null;
     public static FileLog getInstance() {

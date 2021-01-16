@@ -30,7 +30,6 @@ import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RLottieDrawable;
-import org.telegram.ui.Components.SvgHelper;
 
 import java.time.Instant;
 

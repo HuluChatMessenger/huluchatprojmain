@@ -121,6 +121,7 @@ public class SharedConfig {
 
     public static class ProxyInfo {
 
+        public boolean custom;
         public String address;
         public int port;
         public String username;
@@ -132,6 +133,28 @@ public class SharedConfig {
         public boolean checking;
         public boolean available;
         public long availableCheckTime;
+
+
+        public ProxyInfo(String a, int p, String u, String pw, String s,boolean cus) {
+            address = a;
+            port = p;
+            custom = cus;
+            username = u;
+            password = pw;
+            secret = s;
+            if (address == null) {
+                address = "";
+            }
+            if (password == null) {
+                password = "";
+            }
+            if (username == null) {
+                username = "";
+            }
+            if (secret == null) {
+                secret = "";
+            }
+        }
 
         public ProxyInfo(String a, int p, String u, String pw, String s) {
             address = a;
@@ -778,6 +801,34 @@ public class SharedConfig {
         LocaleController.resetImperialSystemType();
     }
 
+    public static void clearProxy(){
+        SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
+        preferences.edit().putString("proxy_list",null).commit();
+        ArrayList<ProxyInfo> temp = new ArrayList<>();
+        for (int i = 0; i < proxyList.size(); i++) {
+            ProxyInfo info = proxyList.get(i);
+            if(!info.custom){
+                temp.add(info);
+            }
+        }
+        boolean enabled = preferences.getBoolean("proxy_enabled", false);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("proxy_ip", "");
+        editor.putString("proxy_pass", "");
+        editor.putString("proxy_user", "");
+        editor.putString("proxy_secret", "");
+        editor.putInt("proxy_port", 1080);
+        editor.putBoolean("proxy_enabled", false);
+        editor.putBoolean("proxy_enabled_calls", false);
+        editor.commit();
+        if (enabled) {
+            ConnectionsManager.setProxySettings(false, "", 0, "", "", "");
+        }
+        proxyList.clear();
+        proxyList.addAll(temp);
+        saveConfig();
+    }
+
     public static void loadProxyList() {
         if (proxyListLoaded) {
             return;
@@ -803,7 +854,9 @@ public class SharedConfig {
                         data.readInt32(false),
                         data.readString(false),
                         data.readString(false),
-                        data.readString(false));
+                        data.readString(false),
+                        data.readBool(false));
+
                 proxyList.add(info);
                 if (currentProxy == null && !TextUtils.isEmpty(proxyAddress)) {
                     if (proxyAddress.equals(info.address) && proxyPort == info.port && proxyUsername.equals(info.username) && proxyPassword.equals(info.password)) {
@@ -830,12 +883,12 @@ public class SharedConfig {
             serializedData.writeString(info.username != null ? info.username : "");
             serializedData.writeString(info.password != null ? info.password : "");
             serializedData.writeString(info.secret != null ? info.secret : "");
+            serializedData.writeBool(info.custom);
         }
         SharedPreferences preferences = ApplicationLoader.applicationContext.getSharedPreferences("mainconfig", Activity.MODE_PRIVATE);
         preferences.edit().putString("proxy_list", Base64.encodeToString(serializedData.toByteArray(), Base64.NO_WRAP)).commit();
         serializedData.cleanup();
     }
-
     public static ProxyInfo addProxy(ProxyInfo proxyInfo) {
         loadProxyList();
         int count = proxyList.size();

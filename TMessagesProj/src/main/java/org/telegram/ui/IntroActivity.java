@@ -25,6 +25,8 @@ import android.os.Looper;
 import android.os.Parcelable;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+
+import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.TextureView;
@@ -36,6 +38,9 @@ import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.plus.apps.business.data.ShopDataController;
+import org.plus.features.FeatureUtils;
+import org.plus.features.LangActivity;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.DispatchQueue;
@@ -45,12 +50,14 @@ import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
+import org.telegram.messenger.SharedConfig;
 import org.telegram.messenger.UserConfig;
 import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.BottomPagesView;
 import org.telegram.ui.Components.LayoutHelper;
+import org.w3c.dom.Text;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -250,19 +257,25 @@ public class IntroActivity extends Activity implements NotificationCenter.Notifi
         textView = new TextView(this);
         textView.setTextColor(0xff1393d2);
         textView.setGravity(Gravity.CENTER);
+        textView.setText(LocaleController.getString("Language",R.string.Language));
         textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
         frameLayout.addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, 30, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0, 0, 20));
         textView.setOnClickListener(v -> {
-            if (startPressed || localeInfo == null) {
-                return;
-            }
-            LocaleController.getInstance().applyLanguage(localeInfo, true, false, currentAccount);
-            startPressed = true;
-            Intent intent2 = new Intent(IntroActivity.this, LaunchActivity.class);
-            intent2.putExtra("fromIntro", true);
-            startActivity(intent2);
-            destroyed = true;
-            finish();
+            Intent intent = new Intent(this,LangActivity.class);
+            startActivityForResult(intent,190);
+
+//            if (startPressed || localeInfo == null) {
+//                return;
+//            }
+//          //  LanguageSelectActivity languageSelectActivity = new LanguageSelectActivity();
+//
+//            LocaleController.getInstance().applyLanguage(localeInfo, true, false, currentAccount);
+//            startPressed = true;
+//            Intent intent2 = new Intent(IntroActivity.this, LaunchActivity.class);
+//            intent2.putExtra("fromIntro", true);
+//            startActivity(intent2);
+//            destroyed = true;
+//            finish();
         });
 
         if (AndroidUtilities.isTablet()) {
@@ -285,13 +298,31 @@ public class IntroActivity extends Activity implements NotificationCenter.Notifi
         }
 
         LocaleController.getInstance().loadRemoteLanguages(currentAccount);
-        checkContinueText();
+        // checkContinueText();
         justCreated = true;
         NotificationCenter.getGlobalInstance().addObserver(this, NotificationCenter.suggestedLangpack);
 
         AndroidUtilities.handleProxyIntent(this, getIntent());
         AndroidUtilities.startAppCenter(this);
+
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 190) {
+            if(resultCode == Activity.RESULT_OK){
+                LocaleController.LocaleInfo  result= (LocaleController.LocaleInfo)data.getSerializableExtra("data");
+                if(result != null){
+                    LocaleController.getInstance().applyLanguage(result, true, false, false, true, currentAccount);
+                    recreate();
+                }
+            }
+        }
+    }
+
+
+
 
     @Override
     protected void onResume() {
@@ -307,6 +338,7 @@ public class IntroActivity extends Activity implements NotificationCenter.Notifi
             justCreated = false;
         }
         ConnectionsManager.getInstance(currentAccount).setAppPaused(false, false);
+
     }
 
     @Override
@@ -323,6 +355,8 @@ public class IntroActivity extends Activity implements NotificationCenter.Notifi
         SharedPreferences preferences = MessagesController.getGlobalMainSettings();
         preferences.edit().putLong("intro_crashed_time", 0).commit();
     }
+
+
 
     private void checkContinueText() {
         LocaleController.LocaleInfo englishInfo = null;
@@ -587,8 +621,10 @@ public class IntroActivity extends Activity implements NotificationCenter.Notifi
             loadTexture(R.drawable.intro_powerful_star, 18);
             loadTexture(R.drawable.intro_private_door, 19);
             loadTexture(R.drawable.intro_private_screw, 20);
+            //loadTexture(R.drawable.intro_tg_plane, 21);
+            //loadTexture(R.drawable.intro_tg_sphere, 22);
             loadTexture(R.drawable.intro_tg_plane, 21);
-            loadTexture(R.drawable.intro_tg_sphere, 22);
+            loadTexture(R.drawable.ic_background, 22);
 
             Intro.setTelegramTextures(textures[22], textures[21]);
             Intro.setPowerfulTextures(textures[17], textures[18], textures[16], textures[15]);

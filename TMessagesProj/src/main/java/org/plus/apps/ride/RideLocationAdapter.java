@@ -36,7 +36,7 @@ public class RideLocationAdapter extends SuperLocationAdapter {
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        ((LocationCell) holder.itemView).setLocation(places.get(position), position, position != places.size() - 1);
+       // ((LocationCell) holder.itemView).setLocation(places.get(position), position, position != places.size() - 1);
     }
 
     public RideObjects.SearchLocation getItem(int i) {

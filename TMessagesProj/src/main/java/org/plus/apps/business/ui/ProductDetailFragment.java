@@ -333,7 +333,7 @@ public class ProductDetailFragment extends BaseFragment implements NotificationC
 
 
 
-        AboutLinkCell aboutLinkCell = new AboutLinkCell(context,this,16){
+        AboutLinkCell aboutLinkCell = new AboutLinkCell(context,this){
             @Override
             protected void didPressUrl(String url) {
                 if (url.startsWith("@")) {
@@ -759,7 +759,7 @@ public class ProductDetailFragment extends BaseFragment implements NotificationC
                 textCell.setText("Description");
                 linearLayout.addView(textCell,LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT,LayoutHelper.WRAP_CONTENT));
 
-                AboutLinkCell aboutLinkCell = new AboutLinkCell(context,ProductDetailFragment.this,16){
+                AboutLinkCell aboutLinkCell = new AboutLinkCell(context,ProductDetailFragment.this){
                     @Override
                     protected void didPressUrl(String url) {
                         if (url.startsWith("@")) {
