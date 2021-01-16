@@ -42,6 +42,19 @@ dependencies {
     implementation files('libs/libgsaverification-client.aar')
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.1'
+
+    //plus
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation "androidx.room:room-runtime:2.2.6"
+    implementation  'com.squareup.retrofit2:converter-gson:2.9.0'
+    annotationProcessor "androidx.room:room-compiler:2.2.6"
+    implementation ("com.google.android.material:material:1.2.1") {
+        exclude group: 'androidx.recyclerview'
+    }
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.2.1'
+    //
+
 }
 
 android {
@@ -49,7 +62,7 @@ android {
     buildToolsVersion '30.0.3'
     ndkVersion "21.1.6352462"
 
-    defaultConfig.applicationId = "org.telegram.messenger"
+    defaultConfig.applicationId = "plus.ride.huluchat"
 
     sourceSets.main.jniLibs.srcDirs = ['./jni/']
 
@@ -310,6 +323,8 @@ android {
         minSdkVersion 16
         targetSdkVersion 29
         versionName "7.3.1"
+        versionName "1.1"
+        vectorDrawables.useSupportLibrary = true
 
         vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
 

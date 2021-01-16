@@ -4018,4 +4018,125 @@
     <string name="RemindDayAt">\'Remind on\' MMM d \'at\' HH:mm</string>
     <string name="RemindDayYearAt">\'Remind on\' MMM d yyyy \'at\' HH:mm</string>
     <string name="Enable">Enable</string>
+
+
+
+    <!--    huluchat -->
+
+    <string name="ConfirmBeforeSendingAudioMessage">Confirm before sending audio message</string>
+    <string name="CheckBeforeSendingVideo">Check before sending video</string>
+    <string name="ConfirmBeforeSendingVideoMessage">Confirm before sending video message</string>
+    <string name="RateDialogTitle">Did you like this app?</string>
+    <string name="RateDialogMessage">Please write your feedback. Thanks for your support.⭐️⭐️⭐️⭐️⭐️</string>
+    <string name="RestartTheHuluChat">Restart HuluChat to see this change</string>
+    <string name="HuluChatFAQ">HuluChat FAQ</string>
+    <string name="HuluChatPrivacyPolicyUrl">https://sites.google.com/view/huluchat/home</string>
+
+
+    <!--   HuluChat Intro-->
+    <string name="HuluPage1Message">**HuluChat** is free and secure Unofficial Telegram app for text and voice communications.</string>
+    <string name="HuluPage2Message">**HuluChat** delivers messages faster than\nany other application.</string>
+    <string name="HuluPage3Message">**HuluChat** without any in-app payments\nand with all the facilities free of charge.</string>
+    <string name="HuluPage4Message">**HuluChat** keeps your messages safe\nfrom hacker attacks.</string>
+    <string name="HuluPage5Message">**HuluChat** has no limits on\nthe size of your media and chats.</string>
+    <string name="HuluPage6Message">**HuluChat** lets you access your messages\nfrom multiple devices.</string>
+
+    <!--    Message Detail-->
+    <string name="MessageDetail">Message Detail</string>
+    <string name="MessageDetailsMessage">Message</string>
+    <string name="MessageDetailsID">Id</string>
+    <string name="MessageDetailsCaption">Caption</string>
+    <string name="MessageDetailsFrom">From</string>
+    <string name="MessageDetailsDate">Date</string>
+    <string name="MessageDetailsForwardFrom">Forward from</string>
+    <string name="MessageDetailsEdited">Edited</string>
+    <string name="MessageDetailsFileName">File name</string>
+    <string name="MessageDetailsFilePath">File path</string>
+    <string name="MessageDetailsFileSize">File size</string>
+    <string name="ExportAsJson">Export as Json</string>
+
+    <string name="ProfileChange">Profile change</string>
+    <string name="ProfilePhotoChanged">Profile photo</string>
+    <string name="ChatSorting">Chat sorting</string>
+    <string name="ForwardPro">Forward pro</string>
+    <string name="SpecialContacts">Special contacts</string>
+    <string name="Translator">Translator</string>
+    <string name="CopyPieceOfText">Copy piece of text</string>
+    <string name="Bio">Bio</string>
+    <string name="AddToSavedMessages">Save message</string>
+    <string name="ForwardWithOutQuote">Forward without quoting</string>
+    <string name="ChatPreview">Chat preview</string>
+    <string name="SelectAll">Select all</string>
+    <string name="IconTabs">Icon Tabs</string>
+    <string name="ShowIconsInsteadOfTextTabs">Show icons instead of text tabs</string>
+    <string name="Quote">Quote</string>
+    <string name="HuluSettings">Hulu Settings</string>
+    <string name="Categories">Categories</string>
+    <string name="About">About</string>
+    <string name="OfficialChannel">Official channel</string>
+    <string name="OfficialChannelUsername">huluchat_official</string>
+    <string name="OfficialGroupUsername">huluchat_official_group</string>
+    <string name="OfficialGroup">Official group</string>
+    <string name="TranslateMe">Translate</string>
+    <string name="Replace">Replace</string>
+    <string name="RateTheApp">Rate app</string>
+    <string name="RateTheAppAbout">For supporting Hulu Chat please submit a 5 star and comment in play store.</string>
+    <string name="NoProfileChange">No profile change.</string>
+    <string name="DialogsSettings">Dialogs settings</string>
+    <string name="HuluChatSettings">HuluChat settings</string>
+    <string name="UseSystemDefaultFont">Use system default font</string>
+    <string name="UseSystemDefaultFontDesc">toggle this on to override the HuluChat app default font</string>
+    <string name="ScreenLayout">Screen layout</string>
+    <string name="ShowActionBarShadow">Hide status bar shadow</string>
+    <string name="TransparentStatusBar">Transparent status bar</string>
+    <string name="LeftToRight">Left to right</string>
+    <string name="RightToLeft">Right to left</string>
+    <string name="ShowUserNameInsteadOfMobile">Show username instead of mobile</string>
+    <string name="ScratchMobileNumber">Scratch mobile number</string>
+    <string name="TabsHeader">Tabs</string>
+    <string name="ChatPreviewVibrateOnShow">Chat preview vibrate on show</string>
+    <string name="GeneralSettings">General settings</string>
+    <string name="ShowUserBio">Show user bio</string>
+    <string name="HideAttachCamera">Hide attach camera</string>
+    <string name="StopMusicWhenRecording">Pause music when recording</string>
+    <string name="CheckBeforeSendingAudio">Check before sending audio</string>
+    <string name="ShopItemCount">%1$d items</string>
+    <string name="SearchProductTitle">Search Products</string>
+    <string name="SearchShopTitle">Search Shops</string>
+    <string name="ProductTab">Products</string>
+    <string name="ShopTab">Shops</string>
+    <string name="EmptyProductListing">No listing found!</string>
+    <string name="EmptyShopReview">No review yet!</string>
+    <string name="Review">Reviews</string>
+    <string name="Listing">Listing</string>
+    <string name="City">City</string>
+    <string name="Address">Address</string>
+    <string name="Website">Website</string>
+    <string name="Description">Description</string>
+    <string name="Reviews_many_one">%1$d Reviews</string>
+    <string name="SortbyRecent">Sort by Recent</string>
+    <string name="NoResultForFitler">No Result matching with your criteria</string>
+    <string name="SearchIn">Search in %1$s</string>
+    <string name="SearchFor">"Search For "</string>
+    <string name="DiscardNewProduct">List Product?</string>
+    <string name="DiscardNewProductAlert">You have not finished listing the product yet. List now?</string>
+    <string name="DiscardNewProductSave">List</string>
+    <string name="ProductDiscard">Discard</string>
+    <string name="AddOneAdminAlertTitle">Add Admin</string>
+    <string name="AddAdminsAlertTitle">Add %1$s</string>
+    <string name="Bots">Bots</string>
+    <string name="Channels">Channels</string>
+    <string name="Groups">Groups</string>
+    <string name="Users">Users</string>
+    <string name="Unread">Unread</string>
+    <string name="Shop">Shop</string>
+    <string name="Scan">Scan</string>
+    <string name="Ride">Ride</string>
+    <string name="AirTime">AirTime</string>
+    <string name="GoToFirstMessage">Go to first message</string>
+    <string name="UserIdCopied">User id copied to clipboard</string>
+
+
+
+
 </resources>

@@ -1,0 +1,15 @@
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/rebuild_cache.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/edit_cache.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/rlottie.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/tgcalls.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/tmessages.35.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/tgcalls_tp.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/mozjpeg.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/sqlite.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/cpufeatures.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/voipandroid.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/lz4.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/tgnet.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/webp.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/tgvoip.dir
+/Users/a1/huluchat/Telegram/TMessagesProj/.cxx/cmake/afatDebug/x86/CMakeFiles/flac.dir
