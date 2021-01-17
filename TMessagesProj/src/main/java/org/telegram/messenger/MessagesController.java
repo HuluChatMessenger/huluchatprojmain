@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 import androidx.core.app.NotificationManagerCompat;
 
 import org.plus.features.PlusConfig;
+import org.plus.features.PlusTheme;
 import org.plus.features.data.FeatureDataStorage;
 import org.plus.features.data.PlusFilterController;
 import org.telegram.SQLite.SQLiteCursor;
@@ -450,7 +452,13 @@ public class MessagesController extends BaseController implements NotificationCe
     public static int DIALOG_FILTER_FLAG_ALL_CHATS          = DIALOG_FILTER_FLAG_CONTACTS | DIALOG_FILTER_FLAG_NON_CONTACTS | DIALOG_FILTER_FLAG_GROUPS | DIALOG_FILTER_FLAG_CHANNELS | DIALOG_FILTER_FLAG_BOTS;
 
     public static class DialogFilter {
+
+        //plus
         public  boolean local;
+        public Drawable outline;
+        public  Drawable fill;
+        //
+
         public int id;
         public String name;
         public int unreadCount;
@@ -1030,6 +1038,25 @@ public class MessagesController extends BaseController implements NotificationCe
                 if (remote != 2) {
                     dialogFilters = filters;
                     dialogFiltersById.clear();
+//                    //plus
+//                    ArrayList<PlusConfig.ChatSortData> sortDataArrayList = PlusConfig.getSortDataArrayList();
+//                    for (int a = 0, N = sortDataArrayList.size(); a < N; a++) {
+//                        PlusConfig.ChatSortData  filter = sortDataArrayList.get(a);
+//                        if(filter == null || !filter.enabled){
+//                            continue;
+//                        }
+//                        DialogFilter dialogFilter = new DialogFilter();
+//                        dialogFilter.name = filter.text;
+//                        dialogFilter.local = true;
+//                        dialogFilter.order = 0;
+//                        dialogFilter.id = filter.id;
+//                        dialogFilter.unreadCount = PlusFilterController.getInstance(currentAccount).getUnreadCount(filter.id);
+//                        dialogFilters.add(0,dialogFilter);
+//                    }
+//                    //
+//
+
+
                     for (int a = 0, N = dialogFilters.size(); a < N; a++) {
                         DialogFilter filter = dialogFilters.get(a);
                         dialogFiltersById.put(filter.id, filter);

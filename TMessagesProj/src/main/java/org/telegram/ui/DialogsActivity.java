@@ -77,12 +77,18 @@ import androidx.core.graphics.ColorUtils;
 import com.google.android.gms.common.Feature;
 
 import org.plus.apps.BottomCard;
+import org.plus.apps.business.ShopUtils;
+import org.plus.apps.business.ui.StoreActivity;
+import org.plus.apps.ride.PickupFragment;
+import org.plus.apps.ride.RideActivity;
+import org.plus.apps.ride.RideFragment;
 import org.plus.experment.PlusBuildVars;
 import org.plus.features.ChatSortingFragment;
 import org.plus.features.FeatureUtils;
 import org.plus.features.PlusConfig;
 import org.plus.features.PlusTheme;
 import org.plus.features.data.PlusFilterController;
+import org.plus.wallet.WalletActivity;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
@@ -279,6 +285,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private float additionalFloatingTranslation;
     private float floatingButtonTranslation;
     private float floatingButtonHideProgress;
+
+    private boolean cardShown;
 
 
     private AnimatorSet searchAnimator;
@@ -1908,7 +1916,6 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     }
                     if (!onlySelect) {
                         floatingButtonContainer.setVisibility(View.GONE);
-                        bottomCard.setVisibility(View.GONE);
                     }
 
                 }
@@ -1940,10 +1947,8 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     viewPages[0].listView.setEmptyView(folderId == 0 ? viewPages[0].progressView : null);
                     if (!onlySelect) {
                         floatingButtonContainer.setVisibility(View.VISIBLE);
-                        bottomCard.setVisibility(View.VISIBLE);
-
                         floatingHidden = true;
-                        floatingButtonTranslation = AndroidUtilities.dp(100);
+                        floatingButtonTranslation = cardShown?AndroidUtilities.dp(150):AndroidUtilities.dp(100);
                         floatingButtonHideProgress = 1f;
                         updateFloatingButtonOffset();
                     }
@@ -3014,6 +3019,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
 
 
         if(FeatureUtils.isSupportedFeature(currentAccount)){
+            cardShown = true;
             contentView.addView(floatingButtonContainer, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.BOTTOM,16, 0, 16, 16));
         }else{
             contentView.addView(floatingButtonContainer, LayoutHelper.createFrame((Build.VERSION.SDK_INT >= 21 ? 56 : 60) + 20, (Build.VERSION.SDK_INT >= 21 ? 56 : 60) + 20, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.BOTTOM, LocaleController.isRTL ? 4 : 0, 0, LocaleController.isRTL ? 0 : 4, 0));
@@ -3054,13 +3060,33 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         }
         floatingButtonContainer.setContentDescription(LocaleController.getString("NewMessageTitle", R.string.NewMessageTitle));
 
+
         bottomCard = new BottomCard(context);
+        bottomCard.setDelegate(new BottomCard.BottomCardDelegate() {
+            @Override
+            public void onItemClicked(int pos) {
+                if(pos == 0){
+                    presentFragment(new StoreActivity());
+                }else if(pos == 1){
+                    presentFragment(new PickupFragment());
+                }else if(pos == 2){
+                    presentFragment(new WalletActivity());
+                }else if(pos == 3){
+
+                }
+            }
+        });
+       // bottomCard.setElevation(12);
+        bottomCard.setUseCompatPadding(true);
+       // bottomCard.setBackground(Theme.createRoundRectDrawable(AndroidUtilities.dp(16),Theme.getColor(Theme.key_windowBackgroundWhite)));
+        bottomCard.setCardElevation(8);
+        bottomCard.setCardBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+        bottomCard.setRadius(AndroidUtilities.dp(64));
 
 
-       if(FeatureUtils.isSupportedFeature(currentAccount)){
 
+        if(FeatureUtils.isSupportedFeature(currentAccount)){
            floatingButtonContainer.addView(bottomCard, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.LEFT | Gravity.TOP, 10, 0, 10, 0));
-
        }else{
            floatingButtonContainer.addView(floatingButton, LayoutHelper.createFrame((Build.VERSION.SDK_INT >= 21 ? 56 : 60), (Build.VERSION.SDK_INT >= 21 ? 56 : 60), Gravity.LEFT | Gravity.TOP, 10, 6, 10, 0));
 
@@ -5834,7 +5860,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             floatingButtonContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
-                    floatingButtonTranslation = floatingHidden ? AndroidUtilities.dp(100) : 0;
+                    floatingButtonTranslation = floatingHidden ? AndroidUtilities.dp(cardShown?150:100) : 0;
                     updateFloatingButtonOffset();
                     floatingButtonContainer.setClickable(!floatingHidden);
                     if (floatingButtonContainer != null) {
@@ -6220,7 +6246,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         ValueAnimator valueAnimator = ValueAnimator.ofFloat(floatingButtonHideProgress,floatingHidden ? 1f : 0f);
         valueAnimator.addUpdateListener(animation -> {
             floatingButtonHideProgress = (float) animation.getAnimatedValue();
-            floatingButtonTranslation = AndroidUtilities.dp(100) * floatingButtonHideProgress;
+            floatingButtonTranslation = AndroidUtilities.dp(cardShown?150:100) * floatingButtonHideProgress;
             updateFloatingButtonOffset();
         });
         animatorSet.playTogether(valueAnimator);
