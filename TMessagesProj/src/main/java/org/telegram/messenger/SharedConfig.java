@@ -109,7 +109,7 @@ public class SharedConfig {
     public static int ivFontSize = 16;
     private static int devicePerformanceClass;
 
-    public static boolean drawDialogIcons;
+    public static boolean drawDialogIcons = true;
     public static boolean useThreeLinesLayout;
     public static boolean archiveHidden;
 

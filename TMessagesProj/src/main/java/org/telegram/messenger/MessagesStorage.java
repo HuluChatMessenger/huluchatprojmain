@@ -1693,6 +1693,7 @@ public class MessagesStorage extends BaseController {
                 }
                 filtersCursor.dispose();
 
+
                 Collections.sort(dialogFilters, (o1, o2) -> {
                     if (o1.order > o2.order) {
                         return 1;

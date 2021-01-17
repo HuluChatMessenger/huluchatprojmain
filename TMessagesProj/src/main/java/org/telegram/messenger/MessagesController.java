@@ -450,6 +450,7 @@ public class MessagesController extends BaseController implements NotificationCe
     public static int DIALOG_FILTER_FLAG_ALL_CHATS          = DIALOG_FILTER_FLAG_CONTACTS | DIALOG_FILTER_FLAG_NON_CONTACTS | DIALOG_FILTER_FLAG_GROUPS | DIALOG_FILTER_FLAG_CHANNELS | DIALOG_FILTER_FLAG_BOTS;
 
     public static class DialogFilter {
+        public  boolean local;
         public int id;
         public String name;
         public int unreadCount;
@@ -904,7 +905,6 @@ public class MessagesController extends BaseController implements NotificationCe
 
     protected void processLoadedDialogFilters(ArrayList<DialogFilter> filters, TLRPC.messages_Dialogs pinnedDialogs, TLRPC.messages_Dialogs pinnedRemoteDialogs, ArrayList<TLRPC.User> users, ArrayList<TLRPC.Chat> chats, ArrayList<TLRPC.EncryptedChat> encryptedChats, int remote) {
         Utilities.stageQueue.postRunnable(() -> {
-
             final LongSparseArray<TLRPC.Dialog> new_dialogs_dict = new LongSparseArray<>();
             final SparseArray<TLRPC.EncryptedChat> enc_chats_dict;
             final LongSparseArray<MessageObject> new_dialogMessage = new LongSparseArray<>();
@@ -1034,6 +1034,8 @@ public class MessagesController extends BaseController implements NotificationCe
                         DialogFilter filter = dialogFilters.get(a);
                         dialogFiltersById.put(filter.id, filter);
                     }
+
+
                     Collections.sort(dialogFilters, (o1, o2) -> {
                         if (o1.order > o2.order) {
                             return 1;

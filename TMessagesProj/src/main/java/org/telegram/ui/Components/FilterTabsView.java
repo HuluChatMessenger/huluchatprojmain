@@ -88,12 +88,7 @@ public class FilterTabsView extends FrameLayout {
             title = t;
         }
 
-        public Tab(int i, String t, Drawable outline_drawable,Drawable fill_drawable) {
-            id = i;
-            title = t;
-            fillDrawable = fill_drawable;
-            outlinedDrawable = outline_drawable;
-        }
+
 
         public Tab(int i, String t, Drawable outline_drawable,Drawable fill_drawable, boolean local) {
             id = i;
@@ -1090,30 +1085,30 @@ public class FilterTabsView extends FrameLayout {
         tabs.add(tab);
     }
 
-    public void addTab(int id, String text, Drawable drawable,Drawable outdrawable) {
-        int position = tabs.size();
-        if (position == 0 && selectedTabId == -1) {
-            selectedTabId = id;
-        }
-        positionToId.put(position, id);
-        idToPosition.put(id, position);
-        if (selectedTabId != -1 && selectedTabId == id) {
-            currentPosition = position;
-        }
-
-        Tab tab;
-        if(drawable == null){
-            tab = new Tab(id,text);
-        }
-        else if (id == 111 || id == 222 || id == 333 || id == 444 || id == 555 || id == 556) {
-            tab = new Tab(id, text, drawable, outdrawable,true);
-        }
-        else {
-            tab = new Tab(id, text, drawable,outdrawable);
-        }
-        allTabsWidth += tab.getWidth(true) + AndroidUtilities.dp(32);
-        tabs.add(tab);
-    }
+//    public void addTab(int id, String text, Drawable drawable,Drawable outdrawable) {
+//        int position = tabs.size();
+//        if (position == 0 && selectedTabId == -1) {
+//            selectedTabId = id;
+//        }
+//        positionToId.put(position, id);
+//        idToPosition.put(id, position);
+//        if (selectedTabId != -1 && selectedTabId == id) {
+//            currentPosition = position;
+//        }
+//
+//        Tab tab;
+//        if(drawable == null){
+//            tab = new Tab(id,text);
+//        }
+//        else if (id == 111 || id == 222 || id == 333 || id == 444 || id == 555 || id == 556) {
+//            tab = new Tab(id, text, drawable, outdrawable,true);
+//        }
+//        else {
+//            tab = new Tab(id, text, drawable,outdrawable);
+//        }
+//        allTabsWidth += tab.getWidth(true) + AndroidUtilities.dp(32);
+//        tabs.add(tab);
+//    }
 
     //plus
     public void addTab(int id, int stableId, String text) {
