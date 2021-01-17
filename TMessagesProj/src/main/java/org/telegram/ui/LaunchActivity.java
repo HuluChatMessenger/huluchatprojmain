@@ -67,6 +67,10 @@ import com.google.firebase.appindexing.Action;
 import com.google.firebase.appindexing.FirebaseUserActions;
 import com.google.firebase.appindexing.builders.AssistActionBuilder;
 
+import org.plus.apps.business.ui.BusinessProfileActivity;
+import org.plus.apps.business.ui.ProductDetailFragment;
+import org.plus.features.MusicFragment;
+import org.plus.features.StoryFragment;
 import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
@@ -124,6 +128,7 @@ import org.telegram.ui.Components.PipRoundVideoView;
 import org.telegram.ui.Components.RLottieDrawable;
 import org.telegram.ui.Components.RLottieImageView;
 import org.telegram.ui.Components.RecyclerListView;
+import org.telegram.ui.Components.ShareAlert;
 import org.telegram.ui.Components.SharingLocationsAlert;
 import org.telegram.ui.Components.SideMenultItemAnimator;
 import org.telegram.ui.Components.StickersAlert;
@@ -501,8 +506,13 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                 }
                 drawerLayoutContainer.closeDrawer(false);
             } else {
+
                 int id = drawerLayoutAdapter.getId(position);
-                if (id == 2) {
+
+                if(id == 12){
+                    drawerLayoutAdapter.setChatShow(!drawerLayoutAdapter.isChatShown(), true);
+
+                }else if (id == 2) {
                     Bundle args = new Bundle();
                     presentFragment(new GroupCreateActivity(args));
                     drawerLayoutContainer.closeDrawer(false);
@@ -530,12 +540,15 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     presentFragment(new ContactsActivity(null));
                     drawerLayoutContainer.closeDrawer(false);
                 } else if (id == 7) {
-                    presentFragment(new InviteContactsActivity());
+                    if(mainFragmentsStack.isEmpty()){
+                        return;
+                    }
+                    MessagesController.getInstance(currentAccount).openByUserName("huluchat_official",mainFragmentsStack.get(0),4);
                     drawerLayoutContainer.closeDrawer(false);
                 } else if (id == 8) {
                     openSettings(false);
                 } else if (id == 9) {
-                    Browser.openUrl(LaunchActivity.this, LocaleController.getString("TelegramFaqUrl", R.string.TelegramFaqUrl));
+                    ShareAlert.createShareAlert(this,null,BuildVars.PLAYSTORE_APP_URL,false,BuildVars.PLAYSTORE_APP_URL,false).show();
                     drawerLayoutContainer.closeDrawer(false);
                 } else if (id == 10) {
                     presentFragment(new CallLogActivity());
@@ -545,12 +558,21 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                     args.putInt("user_id", UserConfig.getInstance(currentAccount).getClientUserId());
                     presentFragment(new ChatActivity(args));
                     drawerLayoutContainer.closeDrawer(false);
-                } else if (id == 12) {
+                }else if(id == 15){
+                    presentFragment(new MusicFragment());
+                    drawerLayoutContainer.closeDrawer(false);
+                }else if(id == 14){
+                    presentFragment(new StoryFragment());
+                    drawerLayoutContainer.closeDrawer(false);
+                }else if(id == 16){
                     if (Build.VERSION.SDK_INT >= 23) {
-                        if (checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                            presentFragment(new ActionIntroActivity(ActionIntroActivity.ACTION_TYPE_NEARBY_LOCATION_ACCESS));
-                            drawerLayoutContainer.closeDrawer(false);
-                            return;
+                        Activity activity = LaunchActivity.this;
+                        if (activity != null) {
+                            if (activity.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                                presentFragment(new ActionIntroActivity(ActionIntroActivity.ACTION_TYPE_NEARBY_LOCATION_ACCESS));
+                                drawerLayoutContainer.closeDrawer(false);
+                                return;
+                            }
                         }
                     }
                     boolean enabled = true;
@@ -565,11 +587,12 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                             FileLog.e(e);
                         }
                     }
-                    if (enabled) {
-                        presentFragment(new PeopleNearbyActivity());
-                    } else {
+                    if (!enabled) {
                         presentFragment(new ActionIntroActivity(ActionIntroActivity.ACTION_TYPE_NEARBY_LOCATION_ENABLED));
+                        drawerLayoutContainer.closeDrawer(false);
+                        return;
                     }
+                    presentFragment(new PeopleNearbyActivity());
                     drawerLayoutContainer.closeDrawer(false);
                 }
             }
@@ -1409,6 +1432,10 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                 } else if (Intent.ACTION_VIEW.equals(intent.getAction())) {
                     Uri data = intent.getData();
                     if (data != null) {
+                        //plus
+                        Integer shop_id = null;
+                        Integer product_id = null;
+                        //
                         String username = null;
                         String login = null;
                         String group = null;
@@ -1592,7 +1619,27 @@ public class LaunchActivity extends Activity implements ActionBarLayout.ActionBa
                                 }
                                 case "tg": {
                                     String url = data.toString();
-                                    if (url.startsWith("tg:resolve") || url.startsWith("tg://resolve")) {
+                                    if(url.startsWith("tg://open")){
+                                        url = url.replace("tg://open", "tg://open.org");
+                                        data = Uri.parse(url);
+                                        shop_id = Utilities.parseInt(data.getQueryParameter("shop_id"));
+                                        if(url.contains("product_id")){
+                                            product_id = Utilities.parseInt(data.getQueryParameter("product_id"));
+                                        }
+
+                                        if(product_id == null){
+                                            Bundle bundle = new Bundle();
+                                            bundle.putInt("chat_id",shop_id);
+                                            presentFragment(new BusinessProfileActivity(bundle));
+                                        }else{
+                                            Bundle bundle = new Bundle();
+                                            bundle.putInt("chat_id", shop_id);
+                                            bundle.putInt("item_id",product_id);
+                                            ProductDetailFragment detailFragment = new ProductDetailFragment(bundle);
+                                            presentFragment(detailFragment);
+                                        }
+
+                                    } else if (url.startsWith("tg:resolve") || url.startsWith("tg://resolve")) {
                                         url = url.replace("tg:resolve", "tg://telegram.org").replace("tg://resolve", "tg://telegram.org");
                                         data = Uri.parse(url);
                                         username = data.getQueryParameter("domain");

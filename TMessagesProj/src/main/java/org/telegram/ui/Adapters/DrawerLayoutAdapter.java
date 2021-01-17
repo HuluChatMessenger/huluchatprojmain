@@ -9,12 +9,21 @@
 package org.telegram.ui.Adapters;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import org.plus.features.data.FeatureDataStorage;
 import org.telegram.messenger.AndroidUtilities;
-import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.R;
@@ -26,6 +35,8 @@ import org.telegram.ui.Cells.DrawerAddCell;
 import org.telegram.ui.Cells.DrawerUserCell;
 import org.telegram.ui.Cells.EmptyCell;
 import org.telegram.ui.Cells.DrawerProfileCell;
+import org.telegram.ui.Components.CubicBezierInterpolator;
+import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RecyclerListView;
 import org.telegram.ui.Components.SideMenultItemAnimator;
 
@@ -34,27 +45,32 @@ import java.util.Collections;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.exoplayer2.util.Log;
+
 public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
 
     private Context mContext;
     private ArrayList<Item> items = new ArrayList<>(11);
     private ArrayList<Integer> accountNumbers = new ArrayList<>();
+
     private boolean accountsShown;
+    private boolean chatShown;
+    private boolean featuresShown;
+
     private DrawerProfileCell profileCell;
+
+    private DrawerExpandActionCell drawerExpandActionCell;
+    //private DrawerExpandActionCell featuresExpandCell;
+
     private SideMenultItemAnimator itemAnimator;
-    private boolean hasGps;
 
     public DrawerLayoutAdapter(Context context, SideMenultItemAnimator animator) {
         mContext = context;
         itemAnimator = animator;
         accountsShown = UserConfig.getActivatedAccountsCount() > 1 && MessagesController.getGlobalMainSettings().getBoolean("accountsShown", true);
+
         Theme.createDialogsResources(context);
         resetItems();
-        try {
-            hasGps = ApplicationLoader.applicationContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS);
-        } catch (Throwable e) {
-            hasGps = false;
-        }
     }
 
     private int getAccountRowsCount() {
@@ -74,6 +90,74 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
         return count;
     }
 
+    public boolean isChatShown() {
+        return chatShown;
+    }
+
+    public boolean isFeaturesShown() {
+        return featuresShown;
+    }
+
+    public void setChatShow(boolean shown, boolean animated){
+        if(chatShown == shown || itemAnimator.isRunning()){
+            return;
+        }
+        chatShown = shown;
+
+        if(drawerExpandActionCell != null){
+            drawerExpandActionCell.setShow(chatShown);
+            drawerExpandActionCell.setArrowState(animated);
+
+        }
+        if (animated) {
+            itemAnimator.setShouldClipChildren(true);
+            resetItems();
+            int positionStart = 3;
+            if (accountsShown) {
+                positionStart =+ getAccountRowsCount();
+            }
+            if (chatShown) {
+                notifyItemRangeInserted(positionStart , 3);
+            } else {
+                notifyItemRangeRemoved(positionStart   , 3);
+            }
+        } else {
+            notifyDataSetChanged();
+        }
+    }
+
+//    public void setFeaturesShown(boolean shown, boolean animated){
+//        if(featuresShown == shown || itemAnimator.isRunning()){
+//            return;
+//        }
+//        featuresShown = shown;
+//        if(featuresExpandCell != null){
+//            featuresExpandCell.setShow(featuresShown);
+//            featuresExpandCell.setArrowState(animated);
+//        }
+//
+//        if (animated) {
+//            itemAnimator.setShouldClipChildren(true);
+//            resetItems();
+//            int positionStart = 5;
+//            if (accountsShown) {
+//                positionStart += getAccountRowsCount();
+//            }
+//
+//            if(chatShown){
+//                positionStart += 3;
+//            }
+//
+//            if (featuresShown) {
+//                notifyItemRangeInserted(positionStart , 2);
+//            } else {
+//                notifyItemRangeRemoved(positionStart  , 3);
+//            }
+//        } else {
+//            notifyDataSetChanged();
+//        }
+//    }
+
     public void setAccountsShown(boolean value, boolean animated) {
         if (accountsShown == value || itemAnimator.isRunning()) {
             return;
@@ -82,9 +166,10 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
         if (profileCell != null) {
             profileCell.setAccountsShown(accountsShown, animated);
         }
+
         MessagesController.getGlobalMainSettings().edit().putBoolean("accountsShown", accountsShown).commit();
         if (animated) {
-            itemAnimator.setShouldClipChildren(false);
+            itemAnimator.setShouldClipChildren(true);
             if (accountsShown) {
                 notifyItemRangeInserted(2, getAccountRowsCount());
             } else {
@@ -130,6 +215,9 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
             case 5:
                 view = new DrawerAddCell(mContext);
                 break;
+            case 6:
+                view = new DrawerExpandActionCell(mContext);
+                break;
             case 1:
             default:
                 view = new EmptyCell(mContext, AndroidUtilities.dp(8));
@@ -146,7 +234,19 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
                 DrawerProfileCell profileCell = (DrawerProfileCell) holder.itemView;
                 profileCell.setUser(MessagesController.getInstance(UserConfig.selectedAccount).getUser(UserConfig.getInstance(UserConfig.selectedAccount).getClientUserId()), accountsShown);
                 break;
-            }
+            } case 6:
+                DrawerExpandActionCell expandCell = (DrawerExpandActionCell) holder.itemView;
+                position -= 2;
+                if (accountsShown) {
+                    position -= getAccountRowsCount();
+                }
+                Item item = items.get(position);
+                if(item.id == 12){
+                    drawerExpandActionCell = expandCell;
+                }
+                items.get(position).bind(expandCell);
+                drawerExpandActionCell.setPadding(0, 0, 0, 0);
+                break;
             case 3: {
                 DrawerActionCell drawerActionCell = (DrawerActionCell) holder.itemView;
                 position -= 2;
@@ -154,6 +254,11 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
                     position -= getAccountRowsCount();
                 }
                 items.get(position).bind(drawerActionCell);
+                if(items.get(position).id == 14){
+                    //drawerActionCell.setCount(FeatureDataStorage.getInstance(UserConfig.selectedAccount).profileNumber);
+                }else{
+                    //drawerActionCell.removeCount();
+                }
                 drawerActionCell.setPadding(0, 0, 0, 0);
                 break;
             }
@@ -193,6 +298,10 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
         }
         if (items.get(i) == null) {
             return 2;
+        }
+
+        if(items.get(i).id == 12 || items.get(i).id == 13){
+            return 6;
         }
         return 3;
     }
@@ -236,6 +345,8 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
         if (!UserConfig.getInstance(UserConfig.selectedAccount).isClientActivated()) {
             return;
         }
+
+
         int eventType = Theme.getEventType();
         int newGroupIcon;
         int newSecretIcon;
@@ -246,66 +357,79 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
         int settingsIcon;
         int inviteIcon;
         int helpIcon;
-        int peopleNearbyIcon;
         if (eventType == 0) {
             newGroupIcon = R.drawable.menu_groups_ny;
-            //newSecretIcon = R.drawable.menu_secret_ny;
-            //newChannelIcon = R.drawable.menu_channel_ny;
+            newSecretIcon = R.drawable.menu_secret_ny;
+            newChannelIcon = R.drawable.menu_channel_ny;
             contactsIcon = R.drawable.menu_contacts_ny;
             callsIcon = R.drawable.menu_calls_ny;
             savedIcon = R.drawable.menu_bookmarks_ny;
             settingsIcon = R.drawable.menu_settings_ny;
             inviteIcon = R.drawable.menu_invite_ny;
             helpIcon = R.drawable.menu_help_ny;
-            peopleNearbyIcon = R.drawable.menu_nearby_ny;
         } else if (eventType == 1) {
             newGroupIcon = R.drawable.menu_groups_14;
-            //newSecretIcon = R.drawable.menu_secret_14;
-            //newChannelIcon = R.drawable.menu_broadcast_14;
+            newSecretIcon = R.drawable.menu_secret_14;
+            newChannelIcon = R.drawable.menu_broadcast_14;
             contactsIcon = R.drawable.menu_contacts_14;
             callsIcon = R.drawable.menu_calls_14;
             savedIcon = R.drawable.menu_bookmarks_14;
             settingsIcon = R.drawable.menu_settings_14;
             inviteIcon = R.drawable.menu_secret_ny;
             helpIcon = R.drawable.menu_help;
-            peopleNearbyIcon = R.drawable.menu_secret_14;
         } else if (eventType == 2) {
             newGroupIcon = R.drawable.menu_groups_hw;
-            //newSecretIcon = R.drawable.menu_secret_hw;
-            //newChannelIcon = R.drawable.menu_broadcast_hw;
+            newSecretIcon = R.drawable.menu_secret_hw;
+            newChannelIcon = R.drawable.menu_broadcast_hw;
             contactsIcon = R.drawable.menu_contacts_hw;
             callsIcon = R.drawable.menu_calls_hw;
             savedIcon = R.drawable.menu_bookmarks_hw;
             settingsIcon = R.drawable.menu_settings_hw;
             inviteIcon = R.drawable.menu_invite_hw;
             helpIcon = R.drawable.menu_help_hw;
-            peopleNearbyIcon = R.drawable.menu_secret_hw;
         } else {
             newGroupIcon = R.drawable.menu_groups;
-            //newSecretIcon = R.drawable.menu_secret;
-            //newChannelIcon = R.drawable.menu_broadcast;
+            newSecretIcon = R.drawable.menu_secret;
+            newChannelIcon = R.drawable.menu_broadcast;
             contactsIcon = R.drawable.menu_contacts;
             callsIcon = R.drawable.menu_calls;
             savedIcon = R.drawable.menu_saved;
             settingsIcon = R.drawable.menu_settings;
             inviteIcon = R.drawable.menu_invite;
             helpIcon = R.drawable.menu_help;
-            peopleNearbyIcon = R.drawable.menu_nearby;
         }
-        items.add(new Item(2, LocaleController.getString("NewGroup", R.string.NewGroup), newGroupIcon));
-        //items.add(new Item(3, LocaleController.getString("NewSecretChat", R.string.NewSecretChat), newSecretIcon));
-        //items.add(new Item(4, LocaleController.getString("NewChannel", R.string.NewChannel), newChannelIcon));
+        items.add(new Item(12,"Create Chat",R.drawable.msg_edit));
+        if(chatShown){
+            items.add(new Item(2, LocaleController.getString("NewGroup", R.string.NewGroup), newGroupIcon));
+            items.add(new Item(3, LocaleController.getString("NewSecretChat", R.string.NewSecretChat), newSecretIcon));
+            items.add(new Item(4, LocaleController.getString("NewChannel", R.string.NewChannel), newChannelIcon));//3
+        }
+        items.add(null);
+//        items.add(new Item(13,"Features",R.drawable.ime_filter_icon_albums));
+//        if(featuresShown){
+//            items.add(new Item(14,"Contact Change",R.drawable.menu_contacts_changes));
+//           // items.add(new Item(15,"Hidden Chat",R.drawable.ic_incoginito));
+//            items.add(new Item(15,"Music",R.drawable.ime_cloud_filter_music));
+//        }
+        items.add(new Item(15,LocaleController.getString("AttachMusic",R.string.AttachMusic),R.drawable.ime_cloud_filter_music));
+        items.add(new Item(14,"Feed",R.drawable.menu_contacts_changes));
+        // items.add(null);
+        items.add(new Item(16, LocaleController.getString("PeopleNearby", R.string.PeopleNearby), R.drawable.menu_nearby));
         items.add(new Item(6, LocaleController.getString("Contacts", R.string.Contacts), contactsIcon));
         items.add(new Item(10, LocaleController.getString("Calls", R.string.Calls), callsIcon));
-        if (hasGps) {
-            items.add(new Item(12, LocaleController.getString("PeopleNearby", R.string.PeopleNearby), peopleNearbyIcon));
-        }
         items.add(new Item(11, LocaleController.getString("SavedMessages", R.string.SavedMessages), savedIcon));
         items.add(new Item(8, LocaleController.getString("Settings", R.string.Settings), settingsIcon));
         items.add(null); // divider
-        items.add(new Item(7, LocaleController.getString("InviteFriends", R.string.InviteFriends), inviteIcon));
-        items.add(new Item(9, LocaleController.getString("TelegramFAQ", R.string.TelegramFAQ), helpIcon));
+        items.add(new Item(7, LocaleController.getString("OfficialChannel", R.string.OfficialChannel), R.drawable.menu_broadcast));
+        items.add(new Item(9,"Share HuluChat" ,R.drawable.msg_share));
+
+
+
+
     }
+
+
+
 
     public int getId(int position) {
         position -= 2;
@@ -347,5 +471,92 @@ public class DrawerLayoutAdapter extends RecyclerListView.SelectionAdapter {
         public void bind(DrawerActionCell actionCell) {
             actionCell.setTextAndIcon(text, icon);
         }
+
+        public void bind(DrawerExpandActionCell actionCell) {
+            actionCell.setTextAndIcon(text, icon);
+        }
+
+        public void setCount(DrawerActionCell actionCell,int count){
+          //  actionCell.setCount(count);
+        }
     }
+
+
+    public static class DrawerExpandActionCell extends FrameLayout {
+
+        private TextView textView;
+        private RectF rect = new RectF();
+        private ImageView arrowView;
+
+
+        private boolean show;
+
+        public DrawerExpandActionCell(Context context) {
+            super(context);
+
+            textView = new TextView(context);
+            textView.setTextColor(Theme.getColor(Theme.key_chats_menuItemText));
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+            textView.setTypeface(AndroidUtilities.getTypeface("fonts/rmedium.ttf"));
+            textView.setLines(1);
+            textView.setMaxLines(1);
+            textView.setSingleLine(true);
+            textView.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
+            textView.setCompoundDrawablePadding(AndroidUtilities.dp(29));
+            addView(textView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.MATCH_PARENT, Gravity.LEFT | Gravity.TOP, 19, 0, 16, 0));
+
+            arrowView = new ImageView(context);
+            arrowView.setScaleType(ImageView.ScaleType.CENTER);
+            Drawable drawable = getResources().getDrawable(R.drawable.menu_expand).mutate();
+            if (drawable != null) {
+                drawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_chats_menuItemIcon), PorterDuff.Mode.MULTIPLY));
+            }
+            arrowView.setImageDrawable(drawable);
+            addView(arrowView, LayoutHelper.createFrame(59, 59, Gravity.RIGHT | Gravity.CENTER_VERTICAL));
+            setArrowState(false);
+        }
+
+
+
+        public void setShow(boolean expand){
+            show = expand;
+        }
+
+        private void setArrowState(boolean animated) {
+            final float rotation = show ?-90.0f : 0.0f;
+            if (animated) {
+                arrowView.animate().rotation(rotation).setDuration(220).setInterpolator(CubicBezierInterpolator.EASE_OUT).start();
+            } else {
+                arrowView.animate().cancel();
+                arrowView.setRotation(rotation);
+            }
+            arrowView.setContentDescription(show ? LocaleController.getString("AccDescrHideAccounts", R.string.AccDescrHideAccounts) : LocaleController.getString("AccDescrShowAccounts", R.string.AccDescrShowAccounts));
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            super.onMeasure(MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(48), MeasureSpec.EXACTLY));
+        }
+
+        @Override
+        protected void onAttachedToWindow() {
+            super.onAttachedToWindow();
+            textView.setTextColor(Theme.getColor(Theme.key_chats_menuItemText));
+            arrowView.getDrawable().setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_chats_menuItemIcon), PorterDuff.Mode.MULTIPLY));
+        }
+
+        public void setTextAndIcon(String text, int resId) {
+            try {
+                textView.setText(text);
+                Drawable drawable = getResources().getDrawable(resId).mutate();
+                if (drawable != null) {
+                    drawable.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_chats_menuItemIcon), PorterDuff.Mode.MULTIPLY));
+                }
+                textView.setCompoundDrawablesWithIntrinsicBounds(drawable, null, null, null);
+            } catch (Throwable e) {
+                FileLog.e(e);
+            }
+        }
+    }
+
 }
