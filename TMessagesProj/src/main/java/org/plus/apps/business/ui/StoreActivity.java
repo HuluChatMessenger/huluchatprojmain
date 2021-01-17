@@ -195,6 +195,7 @@ public class StoreActivity extends BaseFragment implements NotificationCenter.No
                 presentFragment(new GlobalSearchActivity());
             }
         };
+        searchField.getSearchEditText().setEnabled(false);
         searchField.setHint(LocaleController.getString("SearchFor",R.string.SearchFor));
         actionBar.addView(searchField, 0, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.MATCH_PARENT, Gravity.BOTTOM | Gravity.LEFT,40, top_margin, 40 + 40, 0));
 

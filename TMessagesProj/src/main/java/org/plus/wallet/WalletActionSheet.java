@@ -221,7 +221,7 @@ public class WalletActionSheet extends BottomSheet {
         currentType = type;
         currentUser = user;
         this.wallet = wallet;
-        currentBalance = wallet.payable;
+        currentBalance = wallet.balance;
         if(currentUser != null){
             currentUserString = UserObject.getFirstName(user) + "(+" + user.phone + ")";
         }
@@ -234,7 +234,7 @@ public class WalletActionSheet extends BottomSheet {
         currentType = type;
         currentProvider = provider;
         this.wallet = wallet;
-        currentBalance = wallet.payable;
+        currentBalance = wallet.balance;
         currentUser = user;
         if(currentType == TYPE_DEPOSIT){
             currentUserString = user == null?"Wallet":"Deposit to " +  UserObject.getFirstName(user) + "(+" + user.phone + ") Wallet";
@@ -1029,7 +1029,7 @@ public class WalletActionSheet extends BottomSheet {
                     TextInfoPrivacyCell cell = (TextInfoPrivacyCell) itemView;
                     if (position == sendBalanceRow) {
                         if (wallet != null) {
-                            double balance = wallet.amount;
+                            double balance = wallet.balance;
                             cell.setText(LocaleController.formatString("WalletSendBalance", R.string.WalletSendBalance, WalletUtils.formatCurrency(currentBalance = balance)));
                         }
                     }

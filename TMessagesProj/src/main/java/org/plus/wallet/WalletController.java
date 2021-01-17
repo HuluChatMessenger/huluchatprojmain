@@ -1,6 +1,7 @@
 package org.plus.wallet;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.google.gson.Gson;
@@ -163,6 +164,7 @@ public class WalletController extends BaseController {
                     AndroidUtilities.runOnUIThread(() -> getNotificationCenter().postNotificationName(NotificationCenter.didWalletLoaded,false, ErrorUtils.createError(errorBody,code)));
                 }
             } catch (Exception e) {
+                Log.i("loadingWallet",e.getMessage());
                 callSparseArray.remove(reqId);
                 AndroidUtilities.runOnUIThread(() -> getNotificationCenter().postNotificationName(NotificationCenter.didWalletLoaded,false,ErrorUtils.createNetworkError()));
 
@@ -306,7 +308,7 @@ public class WalletController extends BaseController {
             try{
                 JSONObject requestBody = new JSONObject();
                 requestBody.put("amount",amount);
-                requestBody.put("receiver", to_user_id);
+                requestBody.put("receiver", String.valueOf(to_user_id));
                // requestBody.put("description",description);
                 RequestBody body = RequestBody.create(MediaType.parse("application/json"), requestBody.toString());
                 Response<ResponseBody> response = walletRequest.transferToWallet(body).execute();

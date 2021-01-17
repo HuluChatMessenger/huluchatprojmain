@@ -21,19 +21,19 @@ public class WalletModel {
     public static class Wallet{
 
         @SerializedName("payable")
-        public double payable;
+        public String payable;
 
         @SerializedName("deductable")
-        public double deductable;
+        public String deductable;
 
-        @SerializedName("deductable")
-        public double fixable;
+        @SerializedName("fixable")
+        public String fixable;
 
         @SerializedName("id")
         public int id;
 
-        @SerializedName("amount")
-        public double amount;
+        @SerializedName("balance")
+        public double balance;
 
         @SerializedName("status")
         public boolean status;//active,suspended

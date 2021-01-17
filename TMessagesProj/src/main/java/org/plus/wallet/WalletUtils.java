@@ -69,8 +69,8 @@ public class WalletUtils {
 
     public static boolean canTransfer(WalletModel.Wallet wallet){
         boolean send = true;
-        if(wallet.payable > 0){
-           send = false;
+        if(wallet.balance > 0){
+           send = true;
         }
         return send;
     }

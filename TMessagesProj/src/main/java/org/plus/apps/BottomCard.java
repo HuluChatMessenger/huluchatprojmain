@@ -94,7 +94,7 @@ public class BottomCard extends CardView {
             AttachButton attachButton  = new AttachButton(context);
             attachButton.setTextAndIcon(i,name[i], res[i],icon_colors[i],background_colors[i]);
             holder.addView(attachButton,LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT,LayoutHelper.MATCH_PARENT,Gravity.CENTER));
-            container.addView(holder,LayoutHelper.createLinear(0,LayoutHelper.MATCH_PARENT,1f,Gravity.TOP|Gravity.LEFT,8,16,8,4));
+            container.addView(holder,LayoutHelper.createLinear(0,LayoutHelper.MATCH_PARENT,1f,Gravity.TOP|Gravity.LEFT,8,32,8,4));
         }
 
         addView(container,LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT,LayoutHelper.WRAP_CONTENT,Gravity.LEFT|Gravity.BOTTOM,32,16,32,8));

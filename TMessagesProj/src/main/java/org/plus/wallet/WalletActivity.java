@@ -111,7 +111,7 @@ public class WalletActivity extends BaseFragment implements NotificationCenter. 
         getNotificationCenter().addObserver(this, NotificationCenter.didWalletLoaded);
         getNotificationCenter().addObserver(this,NotificationCenter.didTransactionLoaded);
         loadWallet();
-        loadTransactions();
+
         return super.onFragmentCreate();
     }
 
@@ -195,7 +195,7 @@ public class WalletActivity extends BaseFragment implements NotificationCenter. 
             public void onRefresh() {
                 fromRefresh = true;
                 loadWallet();
-                loadTransactions();
+               // loadTransactions();
             }
         });
 
@@ -248,12 +248,13 @@ public class WalletActivity extends BaseFragment implements NotificationCenter. 
                 wallet = (WalletModel.Wallet)(args[1]);
                 walletLoaded = true;
                 if(walletBalanceCell != null){
-                    walletBalanceCell.setBalance(wallet.amount);
+                    walletBalanceCell.setBalance(wallet.balance);
                 }else{
                     if(adapter != null){
                         adapter.notifyDataSetChanged();
                     }
                 }
+                loadTransactions();
             }else{
                 APIError apiError =(APIError)(args[1]);
                 if(walletBalanceCell != null){
@@ -627,7 +628,7 @@ public class WalletActivity extends BaseFragment implements NotificationCenter. 
                 case 0: {
                     WalletBalanceCell balanceCell = (WalletBalanceCell) holder.itemView;
                     if(wallet != null){
-                        balanceCell.setBalance(wallet.amount);
+                        balanceCell.setBalance(wallet.balance);
                     }else{
                         balanceCell.setBalance(-1);
                     }
