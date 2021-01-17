@@ -86,6 +86,7 @@ import androidx.core.view.inputmethod.InputConnectionCompat;
 import androidx.core.view.inputmethod.InputContentInfoCompat;
 import androidx.customview.widget.ExploreByTouchHelper;
 
+import org.plus.experment.PlusBuildVars;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
@@ -129,7 +130,23 @@ import java.util.Locale;
 
 public class ChatActivityEnterView extends FrameLayout implements NotificationCenter.NotificationCenterDelegate, SizeNotifierFrameLayout.SizeNotifierFrameLayoutDelegate, StickersAlert.StickersAlertDelegate {
 
+
+
+    //plus
+    private ImageView paymentButton;
+
+    //
     public interface ChatActivityEnterViewDelegate {
+
+
+        //plus
+      default   void onPaymentShow(){
+
+      };
+        //
+
+
+
         void onMessageSend(CharSequence message, boolean notify, int scheduleDate);
 
         void needSendTyping();
@@ -1997,6 +2014,33 @@ public class ChatActivityEnterView extends FrameLayout implements NotificationCe
             attachLayout.setClipChildren(false);
             frameLayout.addView(attachLayout, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, 48, Gravity.BOTTOM | Gravity.RIGHT));
 
+
+            //plus
+            paymentButton = new ImageView(context);
+            paymentButton.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_chat_messagePanelIcons), PorterDuff.Mode.MULTIPLY));
+            paymentButton.setImageResource(R.drawable.menu_wallet);
+            paymentButton.setScaleType(ImageView.ScaleType.CENTER);
+            paymentButton.setVisibility(GONE);
+
+            if (Build.VERSION.SDK_INT >= 21) {
+                paymentButton.setBackgroundDrawable(Theme.createSelectorDrawable(Theme.getColor(Theme.key_listSelector)));
+            }
+            if(parentFragment != null &&  parentFragment.getCurrentUser() != null){
+                TLRPC.User user  = parentFragment.getCurrentUser();
+                if(user.phone != null && !user.phone.isEmpty() && user.phone.startsWith("251")){
+                    paymentButton.setVisibility(VISIBLE);
+                }
+            }
+            if(PlusBuildVars.DEBUG_PRIVATE){
+                attachLayout.addView(paymentButton, LayoutHelper.createLinear(48, 48));
+            }
+            paymentButton.setOnClickListener(v -> {
+                if (adjustPanLayoutHelper != null && adjustPanLayoutHelper.animationInProgress()) {
+                    return;
+                }
+                delegate.onPaymentShow();
+            });
+            //
             botButton = new ImageView(context);
             botButton.setImageDrawable(botButtonDrawablel = new ReplaceableIconDrawable(context));
             botButtonDrawablel.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_chat_messagePanelIcons), PorterDuff.Mode.MULTIPLY));
