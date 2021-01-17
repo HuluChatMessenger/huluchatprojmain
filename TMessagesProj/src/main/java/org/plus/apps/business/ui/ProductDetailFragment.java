@@ -331,8 +331,6 @@ public class ProductDetailFragment extends BaseFragment implements NotificationC
         frameLayout.addView(linearLayout, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, Gravity.TOP | Gravity.LEFT, 0, 78, 0, 0));
 
 
-
-
         AboutLinkCell aboutLinkCell = new AboutLinkCell(context,this){
             @Override
             protected void didPressUrl(String url) {

@@ -2,7 +2,10 @@ package org.telegram.ui;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
 import android.text.Editable;
 import android.text.TextPaint;
@@ -13,10 +16,15 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Filter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.plus.features.FilterEditTextCell;
+import org.plus.features.PlusConfig;
+import org.plus.features.PlusTheme;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.Emoji;
@@ -31,6 +39,7 @@ import org.telegram.ui.ActionBar.ActionBarMenu;
 import org.telegram.ui.ActionBar.ActionBarMenuItem;
 import org.telegram.ui.ActionBar.AlertDialog;
 import org.telegram.ui.ActionBar.BaseFragment;
+import org.telegram.ui.ActionBar.BottomSheet;
 import org.telegram.ui.ActionBar.SimpleTextView;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.ActionBar.ThemeDescription;
@@ -40,19 +49,26 @@ import org.telegram.ui.Cells.ShadowSectionCell;
 import org.telegram.ui.Cells.TextCell;
 import org.telegram.ui.Cells.TextInfoPrivacyCell;
 import org.telegram.ui.Cells.UserCell;
+import org.telegram.ui.Components.CheckBox2;
 import org.telegram.ui.Components.EditTextBoldCursor;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.RLottieImageView;
 import org.telegram.ui.Components.RecyclerListView;
+import org.telegram.ui.FilterUsersActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class FilterCreateActivity extends BaseFragment {
 
+    //plus
+    private FilterEditTextCell cellPoll;
+    //
     private RecyclerListView listView;
     private ListAdapter adapter;
     private ActionBarMenuItem doneItem;
@@ -796,10 +812,17 @@ public class FilterCreateActivity extends BaseFragment {
                     break;
                 }
                 case 2: {
-                    PollEditTextCell cell = new PollEditTextCell(mContext, null);
-                    cell.createErrorTextView();
-                    cell.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
-                    cell.addTextWatcher(new TextWatcher() {
+                    cellPoll = new FilterEditTextCell(mContext,false, view1 -> openSheet(),false);
+                    //plus
+                    if(PlusConfig.currentFilterSparseArray.get(filter.id) == null){
+                        cellPoll.setMoveImageView(R.drawable.add);
+                    }else{
+                        cellPoll.setMoveImageView(PlusTheme.filterIcons_line[PlusConfig.currentFilterSparseArray.get(filter.id).pos]);
+                    }
+                    //plus
+                    cellPoll.createErrorTextView();
+                    cellPoll.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+                    cellPoll.addTextWatcher(new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -812,7 +835,7 @@ public class FilterCreateActivity extends BaseFragment {
 
                         @Override
                         public void afterTextChanged(Editable s) {
-                            if (cell.getTag() != null) {
+                            if (cellPoll.getTag() != null) {
                                 return;
                             }
                             String newName = s.toString();
@@ -827,11 +850,11 @@ public class FilterCreateActivity extends BaseFragment {
                             checkDoneButton(true);
                         }
                     });
-                    EditTextBoldCursor editText = cell.getTextView();
-                    cell.setShowNextButton(true);
-                    editText.setOnFocusChangeListener((v, hasFocus) -> cell.getTextView2().setAlpha(hasFocus || newFilterName.length() > MAX_NAME_LENGTH ? 1.0f : 0.0f));
+                    EditTextBoldCursor editText = cellPoll.getTextView();
+                    cellPoll.setShowNextButton(true);
+                    editText.setOnFocusChangeListener((v, hasFocus) -> cellPoll.getTextView2().setAlpha(hasFocus || newFilterName.length() > MAX_NAME_LENGTH ? 1.0f : 0.0f));
                     editText.setImeOptions(EditorInfo.IME_ACTION_DONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
-                    view = cell;
+                    view = cellPoll;
                     break;
                 }
                 case 3:
@@ -857,7 +880,7 @@ public class FilterCreateActivity extends BaseFragment {
             int viewType = holder.getItemViewType();
             if (viewType == 2) {
                 setTextLeft(holder.itemView);
-                PollEditTextCell textCell = (PollEditTextCell) holder.itemView;
+                FilterEditTextCell textCell = (FilterEditTextCell) holder.itemView;
                 textCell.setTag(1);
                 textCell.setTextAndHint(newFilterName != null ? newFilterName : "", LocaleController.getString("FilterNameHint", R.string.FilterNameHint), false);
                 textCell.setTag(null);
@@ -867,7 +890,7 @@ public class FilterCreateActivity extends BaseFragment {
         @Override
         public void onViewDetachedFromWindow(RecyclerView.ViewHolder holder) {
             if (holder.getItemViewType() == 2) {
-                PollEditTextCell editTextCell = (PollEditTextCell) holder.itemView;
+                FilterEditTextCell editTextCell = (FilterEditTextCell) holder.itemView;
                 EditTextBoldCursor editText = editTextCell.getTextView();
                 if (editText.isFocused()) {
                     editText.clearFocus();
@@ -942,13 +965,7 @@ public class FilterCreateActivity extends BaseFragment {
                         TLRPC.User user = getMessagesController().getUser(id);
                         if (user != null) {
                             String status;
-                            if (user.bot) {
-                                status = LocaleController.getString("Bot", R.string.Bot);
-                            } else if (user.contact) {
-                                status = LocaleController.getString("FilterContact", R.string.FilterContact);
-                            } else {
-                                status = LocaleController.getString("FilterNonContact", R.string.FilterNonContact);
-                            }
+                            status = LocaleController.formatUserStatus(currentAccount,user);
                             userCell.setData(user, null, status, 0, divider);
                         }
                     } else {
@@ -1024,8 +1041,8 @@ public class FilterCreateActivity extends BaseFragment {
             if (position == includeHeaderRow || position == excludeHeaderRow) {
                 return 0;
             } else if (position >= includeStartRow && position < includeEndRow || position >= excludeStartRow && position < excludeEndRow ||
-                        position == includeContactsRow || position == includeNonContactsRow || position == includeGroupsRow || position == includeChannelsRow || position == includeBotsRow ||
-                        position == excludeReadRow || position == excludeArchivedRow || position == excludeMutedRow) {
+                    position == includeContactsRow || position == includeNonContactsRow || position == includeGroupsRow || position == includeChannelsRow || position == includeBotsRow ||
+                    position == excludeReadRow || position == excludeArchivedRow || position == excludeMutedRow) {
                 return 1;
             } else if (position == nameRow) {
                 return 2;
@@ -1098,4 +1115,173 @@ public class FilterCreateActivity extends BaseFragment {
 
         return themeDescriptions;
     }
+
+    private void openSheet() {
+        if (getParentActivity() == null) {
+            return;
+        }
+        Context context = getParentActivity();
+        BottomSheet.Builder builder = new BottomSheet.Builder(context);
+        builder.setApplyTopPadding(false);
+        builder.setApplyBottomPadding(false);
+
+        LinearLayout linearLayout = new LinearLayout(context);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+
+        FrameLayout frameLayout = new FrameLayout(context){
+            @Override
+            protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+                super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(20), MeasureSpec.EXACTLY));
+            }
+        };
+        linearLayout.addView(frameLayout);
+
+        RecyclerListView gridView = new RecyclerListView(context);
+        gridView.setClipToPadding(false);
+        GridLayoutManager layoutManager = new GridLayoutManager(context, 4);
+        gridView.setLayoutManager(layoutManager);
+
+        gridView.setHorizontalScrollBarEnabled(false);
+        gridView.setVerticalScrollBarEnabled(false);
+
+        IconsAdapter listAdapter = new IconsAdapter(context);
+        gridView.setAdapter(listAdapter);
+        gridView.setGlowColor(Theme.getColor(Theme.key_dialogScrollGlow));
+        gridView.setOnItemClickListener((view, position) -> {
+
+        });
+
+        linearLayout.addView(gridView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT));
+
+
+        gridView.setOnItemClickListener((view, position) -> {
+            IconCell cell = (IconCell) view;
+            if(cell != null){
+                PlusConfig.FilterPos filterPos = new PlusConfig.FilterPos(filter.id,position);
+                cell.setChecked(!cell.isChecked(),true);
+                PlusConfig.addFilter(filterPos);
+                listAdapter.notifyDataSetChanged();
+                if(cellPoll != null){
+                    cellPoll.setMoveImageView(PlusTheme.filterIcons_line[position]);
+                }
+                getNotificationCenter().postNotificationName(NotificationCenter.dialogFiltersUpdated);
+            }
+        });
+
+        builder.setCustomView(linearLayout);
+        showDialog(builder.create());
+    }
+
+    private class IconsAdapter extends RecyclerListView.SelectionAdapter {
+
+        private Context context;
+
+        public IconsAdapter(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        public boolean isEnabled(RecyclerView.ViewHolder holder) {
+            return true;
+        }
+
+        @Override
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view;
+            switch (viewType) {
+                case 0: {
+                    view = new IconCell(context);
+                    view.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, AndroidUtilities.dp(40)));
+                    break;
+                }
+                case 1:
+                default: {
+                    view = new View(context);
+                    view.setLayoutParams(new RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, AndroidUtilities.dp(26)));
+                    break;
+                }
+            }
+            return new RecyclerListView.Holder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            if (holder.getItemViewType() == 0) {
+                IconCell iconCell = (IconCell) holder.itemView;
+                iconCell.imageView.setImageResource(PlusTheme.filterIcons_line[position]);
+                PlusConfig.FilterPos filterPos = PlusConfig.currentFilterSparseArray.get(filter.id);
+                if(filterPos == null){
+
+                }else{
+                    iconCell.setChecked(filterPos.pos == position,false);
+                }
+            }
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return  0;
+        }
+
+        @Override
+        public int getItemCount() {
+            return PlusTheme.filterIcons_line.length;
+        }
+    }
+
+    private  class IconCell extends FrameLayout {
+
+        private ImageView imageView;
+        private CheckBox2 checkBox;
+
+        public IconCell(@NonNull Context context) {
+            super(context);
+            setWillNotDraw(false);
+
+//            setBackgroundColor(Theme.getColor(Theme.key_wallet_greenText));
+
+            imageView = new ImageView(context);
+            imageView.setScaleType(ImageView.ScaleType.CENTER);
+//            imageView.setImageResource(R.drawable.menu_settings);
+            imageView.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_stickers_menu), PorterDuff.Mode.MULTIPLY));
+            addView(imageView, LayoutHelper.createFrame(56, 56, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 7, 0, 0));
+
+            checkBox = new CheckBox2(context, 21);
+            checkBox.setColor(Theme.key_dialogRoundCheckBox, Theme.key_dialogBackground, Theme.key_dialogRoundCheckBoxCheck);
+            checkBox.setDrawUnchecked(false);
+            checkBox.setDrawBackgroundAsArc(4);
+            checkBox.setProgressDelegate(progress -> {
+                float scale = 1.0f - (1.0f - 0.857f) * checkBox.getProgress();
+                imageView.setScaleX(scale);
+                imageView.setScaleY(scale);
+            });
+            addView(checkBox, LayoutHelper.createFrame(24, 24, Gravity.CENTER_HORIZONTAL | Gravity.TOP, 19, 42, 0, 0));
+
+
+        }
+        //
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(80), MeasureSpec.EXACTLY));
+        }
+
+        public void setChecked(boolean checked, boolean animated) {
+            checkBox.setChecked(checked, animated);
+
+        }
+
+        public boolean isChecked(){
+            return checkBox.isChecked();
+        }
+
+        @Override
+        protected void onDraw(Canvas canvas) {
+            int cx = imageView.getLeft() + imageView.getMeasuredWidth() / 2;
+            int cy = imageView.getTop() + imageView.getMeasuredHeight() / 2;
+            Theme.checkboxSquare_checkPaint.setColor(Theme.getColor(Theme.key_dialogRoundCheckBox));
+            Theme.checkboxSquare_checkPaint.setAlpha((int) (checkBox.getProgress() * 255));
+            canvas.drawCircle(cx, cy, AndroidUtilities.dp(28), Theme.checkboxSquare_checkPaint);
+        }
+    }
+
 }

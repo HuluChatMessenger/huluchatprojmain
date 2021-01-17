@@ -20,6 +20,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.plus.features.ChatSortingFragment;
+import org.plus.features.PlusConfig;
+import org.plus.features.PlusTheme;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.Emoji;
 import org.telegram.messenger.FileLog;
@@ -36,6 +39,8 @@ import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.ActionBar.ThemeDescription;
 import org.telegram.ui.Cells.HeaderCell;
 import org.telegram.ui.Cells.ShadowSectionCell;
+import org.telegram.ui.Cells.TextCheckCell;
+import org.telegram.ui.Cells.TextSettingsCell;
 import org.telegram.ui.Components.CombinedDrawable;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.ProgressButton;
@@ -58,6 +63,14 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
     private boolean orderChanged;
 
     private int filterHelpRow;
+
+    //plus
+    private int folderIconTabsRow;
+    private int folderFirstDividerRow;
+    private int folderChatSortingRow;
+    private int folderSecondDividerRow;
+    //plus
+
     private int recommendedHeaderRow;
     private int recommendedStartRow;
     private int recommendedEndRow;
@@ -234,6 +247,10 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
 
     public static class FilterCell extends FrameLayout {
 
+        //plus
+        private ImageView iconImageView;
+        //
+
         private TextView textView;
         private TextView valueTextView;
         @SuppressWarnings("FieldCanBeLocal")
@@ -267,6 +284,15 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
             textView.setEllipsize(TextUtils.TruncateAt.END);
             addView(textView, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, LayoutHelper.WRAP_CONTENT, (LocaleController.isRTL ? Gravity.RIGHT : Gravity.LEFT) | Gravity.TOP, LocaleController.isRTL ? 80 : 64, 14, LocaleController.isRTL ? 64 : 80, 0));
 
+            //plus
+            iconImageView = new ImageView(context);
+            iconImageView.setFocusable(false);
+            iconImageView.setScaleType(ImageView.ScaleType.CENTER);
+            iconImageView.setColorFilter(new PorterDuffColorFilter(Theme.getColor(Theme.key_stickers_menu), PorterDuff.Mode.MULTIPLY));
+            iconImageView.setClickable(true);
+            addView(iconImageView, LayoutHelper.createFrame(48, 48, (LocaleController.isRTL ? Gravity.LEFT : Gravity.RIGHT) | Gravity.CENTER_VERTICAL, (LocaleController.isRTL ? 54 : 0), 0,  (LocaleController.isRTL ? 0 : 54), 0));
+            //plus
+
             valueTextView = new TextView(context);
             valueTextView.setTextColor(Theme.getColor(Theme.key_windowBackgroundWhiteGrayText2));
             valueTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 13);
@@ -293,6 +319,13 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
             super.onMeasure(MeasureSpec.makeMeasureSpec(MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(50), MeasureSpec.EXACTLY));
         }
+
+        //plus
+        public void setIconImageView(int resId) {
+            iconImageView.setImageResource(resId);
+        }
+        //plus
+
 
         public void setFilter(MessagesController.DialogFilter filter, boolean divider) {
             currentFilter = filter;
@@ -390,6 +423,12 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
         ArrayList<TLRPC.TL_dialogFilterSuggested> suggestedFilters = getMessagesController().suggestedFilters;
         rowCount = 0;
         filterHelpRow = rowCount++;
+        //
+        folderIconTabsRow = rowCount++;
+        folderFirstDividerRow = rowCount++;
+        folderChatSortingRow = rowCount++;
+        folderSecondDividerRow = rowCount++;
+        //
         int count = getMessagesController().dialogFilters.size();
         if (!suggestedFilters.isEmpty() && count < 10) {
             recommendedHeaderRow = rowCount++;
@@ -472,6 +511,14 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
                 presentFragment(new FilterCreateActivity(getMessagesController().dialogFilters.get(position - filtersStartRow)));
             } else if (position == createFilterRow) {
                 presentFragment(new FilterCreateActivity());
+            } else if (position == folderIconTabsRow) {
+                PlusConfig.toggleFolderIconTabs();
+                if (view instanceof TextCheckCell) {
+                    ((TextCheckCell)view).setChecked(PlusConfig.folderIconTabs);
+                }
+                getNotificationCenter().postNotificationName(NotificationCenter.dialogFiltersUpdated);
+            } else if (position == folderChatSortingRow) {
+                presentFragment(new ChatSortingFragment());
             }
         });
 
@@ -627,6 +674,16 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
                     view = new TextCell(mContext);
                     view.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
                     break;
+                //plus
+                case 6:
+                    view = new TextSettingsCell(mContext);
+                    view.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+                    break;
+                case 7:
+                    view = new TextCheckCell(mContext);
+                    view.setBackgroundColor(Theme.getColor(Theme.key_windowBackgroundWhite));
+                    break;
+                //plus
                 case 5:
                 default:
                     SuggestedFilterCell suggestedFilterCell = new SuggestedFilterCell(mContext);
@@ -731,7 +788,15 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
                 }
                 case 2: {
                     FilterCell filterCell = (FilterCell) holder.itemView;
-                    filterCell.setFilter(getMessagesController().dialogFilters.get(position - filtersStartRow), true);
+                    //plus
+                    MessagesController.DialogFilter filter =  getMessagesController().dialogFilters.get(position - filtersStartRow);
+                    if(PlusConfig.currentFilterSparseArray.get(filter.id) == null){
+                        filterCell.setIconImageView(R.drawable.menu_folders);
+                    } else {
+                        filterCell.setIconImageView(PlusTheme.filterIcons_line[PlusConfig.currentFilterSparseArray.get(filter.id).pos]);
+                    }
+                    filterCell.setFilter(filter, true);
+                    //plus
                     break;
                 }
                 case 3: {
@@ -761,6 +826,22 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
                     filterCell.setFilter(getMessagesController().suggestedFilters.get(position - recommendedStartRow), recommendedStartRow != recommendedEndRow - 1);
                     break;
                 }
+                //plus
+                case 6:{
+                    TextSettingsCell textSettingsCell = (TextSettingsCell) holder.itemView;
+                    if (position == folderChatSortingRow) {
+                        textSettingsCell.setTextAndValue(LocaleController.getString("ChatSorting", R.string.ChatSorting), PlusConfig.autoSortingChat ?  LocaleController.getString("NotificationsOn", R.string.NotificationsOn) : LocaleController.getString("NotificationsOff", R.string.NotificationsOff), false);
+                    }
+                    break;
+                }
+                case 7: {
+                    TextCheckCell textCheckCell = (TextCheckCell) holder.itemView;
+                    if (position == folderIconTabsRow) {
+                        textCheckCell.setTextAndCheck(LocaleController.getString("IconTabs", R.string.IconTabs), PlusConfig.folderIconTabs, false);
+                    }
+                    break;
+                }
+                //plus
             }
         }
 
@@ -772,10 +853,14 @@ public class FiltersSetupActivity extends BaseFragment implements NotificationCe
                 return 1;
             } else if (position >= filtersStartRow && position < filtersEndRow) {
                 return 2;
-            } else if (position == createSectionRow || position == recommendedSectionRow) {
+            } else if (position == createSectionRow || position == recommendedSectionRow || position == folderFirstDividerRow || position == folderSecondDividerRow) {
                 return 3;
             } else if (position == createFilterRow) {
                 return 4;
+            }  else if (position == folderIconTabsRow) {
+                return 7;
+            } else if (position == folderChatSortingRow) {
+                return 6;
             } else {
                 return 5;
             }

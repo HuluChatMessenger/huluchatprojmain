@@ -27,6 +27,9 @@ import android.widget.Toast;
 
 import androidx.core.app.NotificationManagerCompat;
 
+import org.plus.features.PlusConfig;
+import org.plus.features.data.FeatureDataStorage;
+import org.plus.features.data.PlusFilterController;
 import org.telegram.SQLite.SQLiteCursor;
 import org.telegram.messenger.support.SparseLongArray;
 import org.telegram.messenger.voip.VoIPService;
@@ -648,6 +651,10 @@ public class MessagesController extends BaseController implements NotificationCe
         ImageLoader.getInstance();
         getMessagesStorage();
         getLocationController();
+        //
+        getRequestManager();
+        FeatureDataStorage.getInstance(currentAccount);
+        //
         AndroidUtilities.runOnUIThread(() -> {
             MessagesController messagesController = getMessagesController();
             getNotificationCenter().addObserver(messagesController, NotificationCenter.FileDidUpload);
@@ -2171,6 +2178,9 @@ public class MessagesController extends BaseController implements NotificationCe
         getMediaDataController().cleanup();
 
         DialogsActivity.dialogsLoaded[currentAccount] = false;
+        //plus
+        PlusFilterController.getInstance(currentAccount).cleanup();
+        //
 
         SharedPreferences.Editor editor = notificationsPreferences.edit();
         editor.clear().commit();
@@ -8860,6 +8870,14 @@ public class MessagesController extends BaseController implements NotificationCe
         getMessagesStorage().cleanup(false);
         cleanup();
         getContactsController().deleteUnknownAppAccounts();
+
+        //plus
+        getDataStorage().clear(currentAccount);
+        getShopDataController().clear();
+        getRequestManager().clear();
+        PlusConfig.clearConfig();
+        //
+
     }
 
     private boolean gettingAppChangelog;
@@ -11437,6 +11455,9 @@ public class MessagesController extends BaseController implements NotificationCe
                     updatesOnMainThread = new ArrayList<>();
                 }
                 updatesOnMainThread.add(baseUpdate);
+                //plus
+                FeatureDataStorage.getInstance(currentAccount).updateUserChange(baseUpdate);
+                //
             } else if (baseUpdate instanceof TLRPC.TL_updateUserPhone) {
                 interfaceUpdateMask |= UPDATE_MASK_PHONE;
                 if (updatesOnMainThread == null) {
@@ -12230,6 +12251,9 @@ public class MessagesController extends BaseController implements NotificationCe
                         if (UserObject.isUserSelf(currentUser)) {
                             getNotificationCenter().postNotificationName(NotificationCenter.mainUserInfoChanged);
                         }
+                        //
+                        FeatureDataStorage.getInstance(currentAccount).updateUserChange(baseUpdate);
+                        //
                     } else if (baseUpdate instanceof TLRPC.TL_updateUserPhone) {
                         TLRPC.TL_updateUserPhone update = (TLRPC.TL_updateUserPhone) baseUpdate;
                         final TLRPC.User currentUser = getUser(update.user_id);
@@ -13133,6 +13157,10 @@ public class MessagesController extends BaseController implements NotificationCe
                     nextDialogsCacheOffset.put(dialog.folder_id, offset - 1);
                 }
                 dialogMessage.remove(dialog.id);
+                //plus
+                PlusFilterController.getInstance(currentAccount).remove(dialog);
+                //
+
                 ArrayList<TLRPC.Dialog> dialogs = dialogsByFolder.get(dialog.folder_id);
                 if (dialogs != null) {
                     dialogs.remove(dialog);
@@ -13275,6 +13303,9 @@ public class MessagesController extends BaseController implements NotificationCe
     }
 
     public void sortDialogs(SparseArray<TLRPC.Chat> chatsDict) {
+        //plus
+        PlusFilterController.getInstance(currentAccount).cleanup();
+        //
         dialogsServerOnly.clear();
         dialogsCanAddUsers.clear();
         dialogsChannelsOnly.clear();
@@ -13336,6 +13367,11 @@ public class MessagesController extends BaseController implements NotificationCe
             TLRPC.Dialog d = allDialogs.get(a);
             int high_id = (int) (d.id >> 32);
             int lower_id = (int) d.id;
+
+            //plus
+            PlusFilterController.getInstance(currentAccount).sortDialogs(d, high_id, lower_id);
+            //
+
             if (d instanceof TLRPC.TL_dialog) {
                 MessageObject messageObject = dialogMessage.get(d.id);
                 if (messageObject != null && messageObject.messageOwner.date < dialogsLoadedTillDate) {

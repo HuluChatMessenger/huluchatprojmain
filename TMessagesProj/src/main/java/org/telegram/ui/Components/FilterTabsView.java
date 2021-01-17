@@ -17,6 +17,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -42,6 +43,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.plus.features.PlusConfig;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.Emoji;
 import org.telegram.messenger.LocaleController;
@@ -72,6 +74,10 @@ public class FilterTabsView extends FrameLayout {
     }
 
     private class Tab {
+
+        public boolean isLocal;
+        public Drawable fillDrawable;
+        public Drawable outlinedDrawable;
         public int id;
         public String title;
         public int titleWidth;
@@ -82,8 +88,32 @@ public class FilterTabsView extends FrameLayout {
             title = t;
         }
 
+        public Tab(int i, String t, Drawable outline_drawable,Drawable fill_drawable) {
+            id = i;
+            title = t;
+            fillDrawable = fill_drawable;
+            outlinedDrawable = outline_drawable;
+        }
+
+        public Tab(int i, String t, Drawable outline_drawable,Drawable fill_drawable, boolean local) {
+            id = i;
+            title = t;
+            fillDrawable = fill_drawable;
+            isLocal = local;
+            outlinedDrawable = outline_drawable;
+        }
+
+
+
         public int getWidth(boolean store) {
-            int width = titleWidth = (int) Math.ceil(textPaint.measureText(title));
+            //plus
+            int width;
+            if ((PlusConfig.folderIconTabs && fillDrawable != null) || isLocal) {
+                width = titleWidth = (int) Math.ceil(textPaint.measureText("😎 "));
+            }else {
+                width = titleWidth = (int) Math.ceil(textPaint.measureText(title));
+            }
+            //plus
             int c;
             if (store) {
                 c = delegate.getTabCounter(id);
@@ -167,6 +197,10 @@ public class FilterTabsView extends FrameLayout {
             super(context);
         }
 
+        public boolean isLocal(){
+            return currentTab.isLocal;
+        }
+
         public void setTab(Tab tab, int position) {
             currentTab = tab;
             currentPosition = position;
@@ -199,6 +233,7 @@ public class FilterTabsView extends FrameLayout {
             String animateToOtherKey;
             String unreadKey;
             String unreadOtherKey;
+
             int id1;
             int id2;
             if (manualScrollingToId != -1) {
@@ -241,6 +276,51 @@ public class FilterTabsView extends FrameLayout {
                 }
             }
 
+
+            //plus
+            Drawable outlineDrawable = null;
+            Drawable fillDrawable = null;
+            CombinedDrawable combinedDrawable = null;
+            if(currentTab.outlinedDrawable != null){
+                outlineDrawable = currentTab.outlinedDrawable;
+            }
+
+            if(currentTab.fillDrawable != null){
+                fillDrawable = currentTab.fillDrawable;
+            }
+
+            if(fillDrawable != null && outlineDrawable != null){
+
+                int outlineAlpha;
+                int fillAlpha;
+                if(currentTab.id == id1){
+                    if(manualScrollingToId != -1){
+                        outlineAlpha = (int)(255 - animatingIndicatorProgress * 255);
+                        fillAlpha = (int) (animatingIndicatorProgress * 255);
+                    }else{
+                        outlineAlpha = 0;
+                        fillAlpha = 255;
+                    }
+                }else if(currentTab.id == id2){
+                    fillAlpha  = (int)(255 - animatingIndicatorProgress * 255);
+                    outlineAlpha = (int) (animatingIndicatorProgress * 255);
+
+                }else{
+
+                    outlineAlpha = 255;
+                    fillAlpha = 0;
+                }
+                int color1 = ColorUtils.setAlphaComponent(textPaint.getColor(),outlineAlpha);
+                int color2 = ColorUtils.setAlphaComponent(textPaint.getColor(),fillAlpha);
+
+                fillDrawable.setColorFilter(color2, PorterDuff.Mode.SRC_IN);
+                outlineDrawable.setColorFilter(color1, PorterDuff.Mode.SRC_IN);
+                combinedDrawable = (CombinedDrawable) new CombinedDrawable(outlineDrawable,fillDrawable).mutate();
+
+            }
+            //
+
+
             float counterWidth;
             int countWidth;
             String counterText;
@@ -275,7 +355,7 @@ public class FilterTabsView extends FrameLayout {
                 textX = textX * changeProgress + animateFromTextX * (1f - changeProgress);
             }
 
-            if (!TextUtils.equals(currentTab.title, currentText)) {
+            if (!TextUtils.equals(currentTab.title, currentText) && (!PlusConfig.folderIconTabs || combinedDrawable == null) && !(isLocal())) {
                 currentText = currentTab.title;
                 CharSequence text = Emoji.replaceEmoji(currentText, textPaint.getFontMetricsInt(), AndroidUtilities.dp(15), false);
                 textLayout = new StaticLayout(text, textPaint, AndroidUtilities.dp(400), Layout.Alignment.ALIGN_NORMAL, 1.0f, 0, false);
@@ -312,13 +392,22 @@ public class FilterTabsView extends FrameLayout {
                     textPaint.setAlpha(alpha);
                 }
             } else {
-                if (textLayout != null) {
+                if (textLayout != null && (!PlusConfig.folderIconTabs || combinedDrawable == null) && !(isLocal())) {
                     canvas.save();
                     canvas.translate(textX + textOffsetX, (getMeasuredHeight() - textHeight) / 2f + 1);
                     textLayout.draw(canvas);
                     canvas.restore();
                 }
             }
+
+            //plus
+            int textXX = (getMeasuredWidth() - tabWidth - AndroidUtilities.dp(8)) / 2;
+            int countTopp = (getMeasuredHeight() - AndroidUtilities.dp(20)) / 3;
+            if(PlusConfig.folderIconTabs && combinedDrawable != null || (isLocal())/*(currentTab.id == 111 || currentTab.id == 222 || currentTab.id == 333 || currentTab.id == 444 || currentTab.id == 555 || currentTab.id == 556)*/){
+                combinedDrawable.setBounds(textXX, countTopp  ,textXX + combinedDrawable.getIntrinsicWidth(),countTopp + combinedDrawable.getIntrinsicHeight());
+                combinedDrawable.draw(canvas);
+            }
+            //
 
             if (animateCounterEnter || counterText != null || currentTab.id != Integer.MAX_VALUE && (isEditing || editingStartAnimationProgress != 0)) {
                 if (aBackgroundColorKey == null) {
@@ -983,6 +1072,50 @@ public class FilterTabsView extends FrameLayout {
         selectedTabId = -1;
     }
 
+    //plus
+
+    public void addTab(int id, String text, Drawable outline_drawable,Drawable filled_drawable,boolean isLocal) {
+        int position = tabs.size();
+        if (position == 0 && selectedTabId == -1) {
+            selectedTabId = id;
+        }
+        positionToId.put(position, id);
+        idToPosition.put(id, position);
+        if (selectedTabId != -1 && selectedTabId == id) {
+            currentPosition = position;
+        }
+
+        Tab tab  = new Tab(id, text, outline_drawable, filled_drawable,isLocal);
+        allTabsWidth += tab.getWidth(true) + AndroidUtilities.dp(32);
+        tabs.add(tab);
+    }
+
+    public void addTab(int id, String text, Drawable drawable,Drawable outdrawable) {
+        int position = tabs.size();
+        if (position == 0 && selectedTabId == -1) {
+            selectedTabId = id;
+        }
+        positionToId.put(position, id);
+        idToPosition.put(id, position);
+        if (selectedTabId != -1 && selectedTabId == id) {
+            currentPosition = position;
+        }
+
+        Tab tab;
+        if(drawable == null){
+            tab = new Tab(id,text);
+        }
+        else if (id == 111 || id == 222 || id == 333 || id == 444 || id == 555 || id == 556) {
+            tab = new Tab(id, text, drawable, outdrawable,true);
+        }
+        else {
+            tab = new Tab(id, text, drawable,outdrawable);
+        }
+        allTabsWidth += tab.getWidth(true) + AndroidUtilities.dp(32);
+        tabs.add(tab);
+    }
+
+    //plus
     public void addTab(int id, int stableId, String text) {
         int position = tabs.size();
         if (position == 0 && selectedTabId == -1) {

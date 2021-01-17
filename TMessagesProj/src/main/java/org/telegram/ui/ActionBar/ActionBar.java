@@ -37,14 +37,21 @@ import android.widget.ImageView;
 import com.google.android.exoplayer2.util.Log;
 
 import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.ImageLocation;
 import org.telegram.messenger.LocaleController;
+import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.R;
 import org.telegram.messenger.SharedConfig;
+import org.telegram.messenger.UserConfig;
+import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.Adapters.FiltersView;
+import org.telegram.ui.Components.AvatarDrawable;
+import org.telegram.ui.Components.BackupImageView;
 import org.telegram.ui.Components.EllipsizeSpanAnimator;
 import org.telegram.ui.Components.FireworksEffect;
 import org.telegram.ui.Components.LayoutHelper;
 import org.telegram.ui.Components.SnowflakesEffect;
+import org.telegram.ui.PhotoViewer;
 
 import java.util.ArrayList;
 
@@ -59,6 +66,50 @@ public class ActionBar extends FrameLayout {
             return true;
         }
     }
+
+    //plus
+    private BackupImageView avatarImage;
+
+    private void createAvatarImage() {
+        if (this.avatarImage == null) {
+            BackupImageView backupImageView = new BackupImageView(getContext());
+            this.avatarImage = backupImageView;
+            backupImageView.setVisibility(VISIBLE);
+            this.avatarImage.setRoundRadius(AndroidUtilities.dp(21.0f));
+            addView(this.avatarImage, 0, LayoutHelper.createFrame(30, 30.0f));
+        }
+    }
+
+    public BackupImageView getAvatarImage() {
+        return this.avatarImage;
+    }
+
+
+    public void setAvatarImage(int i) {
+        if (i != -1 && this.avatarImage == null) {
+            createAvatarImage();
+        }
+        TLRPC.User user = MessagesController.getInstance(i).getUser(Integer.valueOf(UserConfig.getInstance(i).getClientUserId()));
+        if (user != null) {
+            TLRPC.FileLocation fileLocation = null;
+            TLRPC.UserProfilePhoto tLRPC$UserProfilePhoto = user.photo;
+            if (tLRPC$UserProfilePhoto != null) {
+                fileLocation = tLRPC$UserProfilePhoto.photo_big;
+            }
+            AvatarDrawable avatarDrawable = new AvatarDrawable(user, true);
+            avatarDrawable.setColor(Theme.getColor("avatar_backgroundInProfileBlue"));
+            BackupImageView backupImageView = this.avatarImage;
+            if (backupImageView != null) {
+                backupImageView.setVisibility(VISIBLE);
+                this.avatarImage.setImage(ImageLocation.getForUser(user, false), "50_50", avatarDrawable,  user);
+                this.avatarImage.getImageReceiver().setVisible(!PhotoViewer.isShowingImage(fileLocation), false);
+                this.avatarImage.getImageReceiver().setVisible(!PhotoViewer.isShowingImage(fileLocation), false);
+            }
+        }
+    }
+
+
+    //
 
     private ImageView backButtonImageView;
     private SimpleTextView[] titleTextView = new SimpleTextView[2];
